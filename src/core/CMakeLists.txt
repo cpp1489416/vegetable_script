@@ -1,7 +1,11 @@
 
 project(vegetable-script)
 
-set(src_list mul.cpp)
+set(src_list 
+    mul.cpp
+    common/string_util.cpp
+    parsing/token.cpp
+    parsing/lexer.cpp)
 
 add_library(vegetable-script-core SHARED ${src_list})
 add_library(vegetable-script-core-static STATIC ${src_list})

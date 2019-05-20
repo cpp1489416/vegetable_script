@@ -1,43 +1,41 @@
-#pragma once
+#ifndef VEGETABLE_SCRIPT_CORE_PARSION_LEXER_H_
+#define VEGETABLE_SCRIPT_CORE_PARSION_LEXER_H_
 
-#include "../Core/Core.h"
-#include "Token.h"
+#include <string>
+#include <vector>
+#include "./Token.h"
 
-XC_BEGIN_NAMESPACE_1(Tang)
-{
-    class Lexer
-    {
-    public:
-        explicit Lexer(std::string sourceCode)
-        {
-            mSourceCode = sourceCode;
-            Solve();
-        } 
+namespace vegetable_script {
 
-    public:
-        bool IsHasNext() const;
+class Lexer {
+ public:
+  explicit Lexer(std::string source_code) {
+    source_code_ = source_code;
+    Solve();
+  }
 
-        void MoveToFront();
+  bool IsHasNext() const;
 
-        Token GetNextToken();
+  void MoveToFront();
 
-        Token GetPreviousToken();
+  Token GetNextToken();
 
-        Token LookAhead(int more = 1);
+  Token GetPreviousToken();
 
-    private:
-        void Solve();
+  Token LookAhead(int more = 1);
 
-        void AddString(std::string s);
+ private:
+  void Solve();
 
-        Token ConvertStringToToken(std::string s);
+  void AddString(std::string s);
 
-    private:
-        XC::Array<Token> mTokenArray;
-        std::string mSourceCode;
-        int mCurrentIndex = 0;
-    };
+  Token ConvertStringToToken(std::string s);
 
-    
+  std::vector<Token> token_array_;
+  std::string source_code_;
+  int current_index_ = 0;
+};
 
-} XC_END_NAMESPACE_1;
+}  // namespace vegetable_script
+
+#endif  // VEGETABLE_SCRIPT_CORE_PARSION_LEXER_H_

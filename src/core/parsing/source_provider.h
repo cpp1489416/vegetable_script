@@ -1,0 +1,12 @@
+#ifndef VEGETABLE_SCRIPT_CORE_PARSING_SOURCE_PROVIDER_H_
+#define VEGETABLE_SCRIPT_CORE_PARSING_SOURCE_PROVIDER_H_
+
+namespace vegetable_script {
+
+class SourceProvider {
+ public:
+};
+
+}
+
+#endif  // VEGETABLE_SCRIPT_CORE_PARSING_SOURCE_PROVIDER_H

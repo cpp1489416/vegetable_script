@@ -1,10 +1,18 @@
-#include "Token.h"
+#include "token.h"
 
-XC_BEGIN_NAMESPACE_1(Tang)
-{
-    Token::Token(std::string string, Token::Type type)
-    {
-        mString = string;
-        mType = type;
-    }
-} XC_END_NAMESPACE_1;
+namespace vegetable_script {
+
+Token::Token(std::string string, Token::Type type) {
+  string_ = string;
+  type_ = type;
+}
+
+std::string Token::ToString() const {
+  return "Token(" + string_ + ", " + TypeToString(type_) + ")";
+}
+
+std::string Token::TypeToString(Token::Type type) {
+  return type.ToString();
+}
+
+}  // namespace vegetable_script

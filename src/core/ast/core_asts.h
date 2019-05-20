@@ -1,346 +1,258 @@
-#pragma once
+#ifndef VEGETABLE_SCRIPT_CORE_AST_CORE_ASTS_H_
+#define VEGETABLE_SCRIPT_CORE_AST_CORE_ASTS_H_
 
-#include "../../Core/Core.h"
-#include "../Token.h"
+#include <string>
+#include <vector>
+#include "../util/pointer.h"
+#include "../parsing/token.h"
 
-namespace vegetable_script
-{
-    using namespace XC;
+namespace vegetable_script {
 
-    class IVisitable;
+struct IVisitable;
 
-    class AST;
+struct Ast;
 
-    // expressions
-    class Expression;
-    class EmptyExpression;
-    class LHSExpression;
-    /* */ class VariableExpression; 
-    class LiteralExpression;
-    /* */ class NumberExpression;
-    class FunctionExpression;
-    class CalculateExpression;
-    class CompareExpression;
-    class AssignExpression;
+// expressions
+struct Expression;
+struct EmptyExpression;
+struct LHSExpression;
+struct VariableExpression;
+struct LiteralExpression;
+struct NumberExpression;
+struct FunctionExpression;
+struct CalculateExpression;
+struct CompareExpression;
+struct AssignExpression;
 
-    // statements
-    class Statement;
-    class ExpressionStatement;
-    class BlockStatement;
-    class IfStatement;
-    class WhileStatement;
-    class ForStatement;
+// statements
+struct Statement;
+struct ExpressionStatement;
+struct BlockStatement;
+struct IfStatement;
+struct WhileStatement;
+struct ForStatement;
 
-    class Program;
+struct Program;
 
-    // types
-    class TypeAST;
-    class IntegerTypeAST;
-    class RealTypeAST;
+// types
+struct TypeAst;
+struct IntegerTypeAst;
+struct RealTypeAst;
 
-    // type references
-    class TypeReference;
-    class IntegerTypeReference;
-    class RealTypeReference;
+// type references
+struct TypeReference;
+struct IntegerTypeReference;
+struct RealTypeReference;
 
-    class VariableDefinition;
-    class ParameterDefinition;
-    using Argument = ParameterDefinition;
-    class FunctionDefinition;
-    using ParameterList = XC::Array<XC::Pointer<ParameterDefinition> >;
-    using ArgumentList = XC::Array<XC::Pointer<Expression> >;
+struct VariableDefinition;
+struct ParameterDefinition;
+using Argument = ParameterDefinition;
+struct FunctionDefinition;
+using ParameterList = std::vector<Pointer<ParameterDefinition> >;
+using ArgumentList = std::vector<Pointer<Expression> >;
 
-    class Symbol;
-    class VariableSymbol;
-    class FunctionSymbol;
-    class ClassTypeSymbol;
-    class BuiltInTypeSymbol;
+struct Symbol;
+struct VariableSymbol;
+struct FunctionSymbol;
+struct ClassTypeSymbol;
+struct BuiltInTypeSymbol;
 
-    class IVisitor
-    {
-    public:
-        virtual void Visit(NumberExpression* node) {}
+struct IVisitor {
+ public:
+  virtual void Visit(NumberExpression* node) {}
 
-        virtual void Visit(EmptyExpression* node) {}
+  virtual void Visit(EmptyExpression* node) {}
 
-        virtual void Visit(VariableExpression* node) {}
+  virtual void Visit(VariableExpression* node) {}
 
-        virtual void Visit(CalculateExpression* node) {}
+  virtual void Visit(CalculateExpression* node) {}
 
-        virtual void Visit(CompareExpression* node) {}
-
-        virtual void Visit(AssignExpression* node) {}
-
-        virtual void Visit(ExpressionStatement* node) {}
-
-        virtual void Visit(BlockStatement* node) {}
-
-        virtual void Visit(IfStatement* node) {}
-
-        virtual void Visit(WhileStatement* node) {}
-
-        virtual void Visit(ForStatement* node) {}
-
-        virtual void Visit(FunctionExpression* node) {}
-
-        virtual void Visit(VariableDefinition* node) {}
-
-        virtual void Visit(FunctionDefinition* node) {}
-
-        virtual void Visit(Program* node) {}
-
-        virtual void Visit(VariableSymbol *node) {}
-
-        virtual void Visit(ClassTypeSymbol* node) {}
-
-        virtual void Visit(BuiltInTypeSymbol* node) {}
-
-        virtual void Visit(ParameterDefinition* node) {}
-
-        virtual void Visit (FunctionSymbol *node) {}
-    };
-
-    class IVisitable
-    {
-    public:
-        virtual void Accept(IVisitor* visitor) = 0;
-    };
-
-    class AST : public IVisitable
-    {
-    };
-
-    class Expression : public AST
-    {
-    };
-
-    class EmptyExpression : public Expression
-    {
-    public:
-        void Accept(IVisitor* visitor) override
-        {
-            visitor->Visit(this);
-        }
-    };
-
-    class NumberExpression : public Expression
-    {
-    public:
-        void Accept(IVisitor* visitor) override
-        {
-            visitor->Visit(this);
-        }
-
-    public:
-        Token mToken;
-        double mValue;
-    };
-
-    class VariableExpression : public Expression
-    {
-    public:
-        void Accept(IVisitor* visitor) override
-        {
-            visitor->Visit(this);
-        }
-
-    public:
-        Token mToken;
-        String mName;
-    };
-
-    class FunctionExpression : public Expression
-    {
-    public:
-        void Accept(IVisitor* visitor) override
-        {
-            visitor->Visit(this);
-        }
-
-    public:
-        String mName;
-        ArgumentList mArgumentList;
-    };
-
-    struct CalculateExpression : public Expression
-    {
-    public:
-        enum class Operator
-        {
-            Plus, // +
-            Minus, // -
-            Multiply, // *
-            Divide, // /
-        };
-
-    public:
-        void Accept(IVisitor* visitor) override
-        {
-            visitor->Visit(this);
-        }
-
-    public:
-        Pointer<Expression> mLeftExpression;
-        Operator mOperator;
-        Pointer<Expression> mRightExpression;
-    };
-
-    class CompareExpression : public Expression
-    {
-    public:
-        enum class Operator
-        {
-            Greater,
-            Lesser,
-        };
-
-    public:
-        void Accept(IVisitor* visitor) override
-        {
-            visitor->Visit(this);
-        }
-
-    public:
-        Pointer<Expression> mLeftExpression;
-        Operator mOperator;
-        Pointer<Expression> mRightExpression;
-    };
-
-    struct AssignExpression : public Expression
-    {
-    public:
-        void Accept(IVisitor* visitor) override
-        {
-            visitor->Visit(this);
-        }
-
-    public:
-        Token mOperatorToken;
-        Pointer<Expression> mLeftExpression;
-        Pointer<Expression> mRightExpression;
-    };
-
-    class Statement : public AST
-    {
-    };
-
-    class ExpressionStatement : public Statement
-    {
-    public:
-        void Accept(IVisitor* visitor) override
-        {
-            visitor->Visit(this);
-        }
-
-    public:
-        Pointer<Expression> mExpression;
-    };
-
-    class BlockStatement : public Statement
-    {
-    public:
-        void Accept(IVisitor* visitor) override
-        {
-            visitor->Visit(this);
-        }
-
-    public:
-        Array<Pointer<Statement> > mStatements;
-    };
-
-    class IfStatement : public Statement
-    {
-    public:
-        void Accept(IVisitor* visitor) override
-        {
-            visitor->Visit(this);
-        }
-
-    public:
-        Pointer<Expression> mConditionExpression;
-        Pointer<Statement> mMainStatement;
-        Pointer<Statement> mElseStatement;
-    };
-
-    class WhileStatement : public Statement
-    {
-    public:
-        void Accept(IVisitor* visitor) override
-        {
-            visitor->Visit(this);
-        }
-
-    public:
-        Pointer<Expression> mConditionExpression;
-        Pointer<Statement> mBodyStatement;
-    };
-
-    class ForStatement : public Statement
-    {
-    public:
-        void Accept(IVisitor* visitor) override
-        {
-            visitor->Visit(this);
-        }
-
-    public:
-        Pointer<Expression> mBeginStatement;
-        Pointer<Expression> mConditionExpression;
-        Pointer<Expression> mAfterExpression;
-        Pointer<Statement> mBodyStatement;
-    };
-
-    class VariableDefinition : public AST
-    {
-    public:
-        void Accept(IVisitor* visitor) override
-        {
-            visitor->Visit(this);
-        }
-
-    public:
-        String mName;
-        Pointer<Expression> mValueExpression;
-        Pointer<TypeReference> mTypeReference;
-        Pointer<TypeAST> mType;
-    };
-
-    class ParameterDefinition : public AST
-    {
-    public:
-        void Accept(IVisitor* visitor) override
-        {
-            visitor->Visit(this);
-        }
-
-    public:
-        Pointer<VariableExpression> mVariableExpression;
-        bool mIsByReference = false;
-    };
-
-    class FunctionDefinition : public AST
-    {
-    public:
-        void Accept(IVisitor* visitor) override
-        {
-            visitor->Visit(this);
-        }
-
-    public:
-        String mName;
-        ParameterList mParemeterList;
-        Pointer<BlockStatement> mBlockStatement;
-    };
-
-    class Program : public AST
-    {
-    public:
-        void Accept(IVisitor* visitor) override
-        {
-            visitor->Visit(this);
-        }
-
-    public:
-        Array<Pointer<AST> > mASTs;
-    };
+  virtual void Visit(CompareExpression* node) {}
+
+  virtual void Visit(AssignExpression* node) {}
+
+  virtual void Visit(ExpressionStatement* node) {}
+
+  virtual void Visit(BlockStatement* node) {}
+
+  virtual void Visit(IfStatement* node) {}
+
+  virtual void Visit(WhileStatement* node) {}
+
+  virtual void Visit(ForStatement* node) {}
+
+  virtual void Visit(FunctionExpression* node) {}
+
+  virtual void Visit(VariableDefinition* node) {}
+
+  virtual void Visit(FunctionDefinition* node) {}
+
+  virtual void Visit(Program* node) {}
+
+  virtual void Visit(VariableSymbol *node) {}
+
+  virtual void Visit(ClassTypeSymbol* node) {}
+
+  virtual void Visit(BuiltInTypeSymbol* node) {}
+
+  virtual void Visit(ParameterDefinition* node) {}
+
+  virtual void Visit(FunctionSymbol *node) {}
+};
+
+struct IVisitable {
+ public:
+  virtual void Accept(IVisitor* visitor) = 0;
+};
+
+struct Ast : public IVisitable {
+};
+
+struct Expression : public Ast {
+};
+
+struct EmptyExpression : public Expression {
+  void Accept(IVisitor* visitor) override { visitor->Visit(this); }
+};
+
+struct NumberExpression : public Expression {
+  void Accept(IVisitor* visitor) override { visitor->Visit(this); }
+
+  Token token;
+  double value;
+};
+
+struct VariableExpression : public Expression {
+  void Accept(IVisitor* visitor) override { visitor->Visit(this); }
+
+  Token token;
+  std::string name;
+};
+
+struct FunctionExpression : public Expression {
+    void Accept(IVisitor* visitor) override { visitor->Visit(this); }
+
+    std::string name;
+    ArgumentList argument_list;
+};
+
+struct CalculateExpression : public Expression {
+  enum struct Operator {
+    kPlus,  // +
+    kMinus,  // -
+    kMultiply,  // *
+    kDivide,  // /
+  };
+
+  void Accept(IVisitor* visitor) override { visitor->Visit(this); }
+
+  Pointer<Expression> left_expression;
+  Operator operatorr;
+  Pointer<Expression> right_expression;
+};
+
+struct CompareExpression : public Expression {
+  enum struct Operator {
+    kGreater,
+    kLesser,
+  };
+
+  void Accept(IVisitor* visitor) override {
+    visitor->Visit(this);
+  }
+
+  Pointer<Expression> left_expression;
+  Operator opeartor_;
+  Pointer<Expression> right_expression;
+};
+
+struct AssignExpression : public Expression {
+  void Accept(IVisitor* visitor) override {
+    visitor->Visit(this);
+  }
+
+  Token operator_token;
+  Pointer<Expression> left_expression;
+  Pointer<Expression> right_expression;
+};
+
+struct Statement : public Ast {
+};
+
+struct ExpressionStatement : public Statement {
+  void Accept(IVisitor* visitor) override {
+    visitor->Visit(this);
+  }
+
+  Pointer<Expression> expression;
+};
+
+struct BlockStatement : public Statement {
+  void Accept(IVisitor* visitor) override {
+    visitor->Visit(this);
+  }
+
+  std::vector<Pointer<Statement> > statements;
+};
+
+struct IfStatement : public Statement {
+  void Accept(IVisitor* visitor) override {
+    visitor->Visit(this);
+  }
+
+  Pointer<Expression> condition_expression;
+  Pointer<Statement> main_statemenet;
+  Pointer<Statement> else_statement;
+};
+
+struct WhileStatement : public Statement {
+  void Accept(IVisitor* visitor) override {
+    visitor->Visit(this);
+  }
+
+  Pointer<Expression> condition_expression;
+  Pointer<Statement> body_statement;
+};
+
+struct ForStatement : public Statement {
+  void Accept(IVisitor* visitor) override { visitor->Visit(this); }
+
+  Pointer<Expression> begin_statement;
+  Pointer<Expression> condition_expression;
+  Pointer<Expression> after_expression;
+  Pointer<Statement> body_statement;
+};
+
+struct VariableDefinition : public Ast {
+  void Accept(IVisitor* visitor) override { visitor->Visit(this); }
+
+  std::string name;
+  Pointer<Expression> value_expression;
+  Pointer<TypeReference> type_reference;
+  Pointer<TypeAst> type;
+};
+
+struct ParameterDefinition : public Ast {
+  void Accept(IVisitor* visitor) override { visitor->Visit(this); }
+
+  Pointer<VariableExpression> variable_expression;
+  bool is_my_reference = false;
+};
+
+struct FunctionDefinition : public Ast {
+  void Accept(IVisitor* visitor) override { visitor->Visit(this); }
+
+  std::string name;
+  ParameterList parameter_list;
+  Pointer<BlockStatement> block_statement;
+};
+
+struct Program : public Ast {
+  void Accept(IVisitor* visitor) override { visitor->Visit(this); }
+
+  std::vector<Pointer<Ast> > asts;
+};
+
 }
+
+#endif  // VEGETABLE_SCRIPT_CORE_AST_CORE_ASTS_H_

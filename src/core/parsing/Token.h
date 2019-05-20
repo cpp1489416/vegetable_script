@@ -1,37 +1,57 @@
-#pragma once
+#ifndef VEGETABLE_SCRIPT_CORE_PARSING_TOKEN_H_
+#define VEGETABLE_SCRIPT_CORE_PARSING_TOKEN_H_
+
 #include <string>
-#include "../Core/Core.h"
+#include "../common/all.h"
 
-XC_BEGIN_NAMESPACE_1(Tang)
-{
-    class Token
-    {
-    public:
-        enum class Type
-        {
-            None, End, Bracket, Number, Operator, Keyword, Name,
-        };
+namespace vegetable_script {
 
-    public:
-        Token(std::string string = "", Type type = Type::None);
+class Token {
+ public:
+  enum class sTypess {
+    kNone, kEnd, kBracket, kNumber, kOperator, kKeyword, kName,  // main type
+    kLeftBracket, kRightBracket,
+  };
+  XC_MULTI_ENUM(
+    Type,
+    kNone,
+    kEnd,
 
-    public:
-        std::string GetString() const
-        {
-            return mString;
-        }
+    kBracket,
+    kBracketLeft, kBracketRight,
+    kBracketBig, kBracketMiddle, kBracketSmall,
 
-        Type GetType() const
-        {
-            return mType;
-        }
-        
-    private:
-        std::string mString;
-        Type mType;
+    kNumber, kNumberFloat, kNumberInteger,
 
-        friend class Parser;
-        friend class Lexer;
-    };
-      
-} XC_END_NAMESPACE_1;
+    kOperator,
+    kOperatorPlus, kOperatorMinus,
+    kOperatorMultiply, kOperatorDivide,
+    kOperatorNegative,
+
+    kKeyword,
+    kName,
+  )
+
+  explicit Token(std::string string = "", Type type = Type::kNone);
+
+  std::string string() const { return string_; }
+
+  Type type() const { return type_; }
+
+  std::string ToString() const;
+
+ private:
+  static std::string TypeToString(Type type);
+
+  std::string string_;
+
+  Type type_;
+
+  friend class Parser;
+
+  friend class Lexer;
+};
+
+}  // namespace vegetable_script
+
+#endif
