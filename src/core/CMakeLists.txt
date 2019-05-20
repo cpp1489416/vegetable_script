@@ -7,7 +7,7 @@ add_library(vegetable-script-core SHARED ${src_list})
 add_library(vegetable-script-core-static STATIC ${src_list})
 
 file(COPY .
-    DESTINATION ${PROJECT_BINARY_DIR}/../../dist/include
+    DESTINATION ${PROJECT_BINARY_DIR}/../../dist/include/vegetable_script
     FILES_MATCHING PATTERN *.h)
 
 INSTALL(TARGETS vegetable-script-core

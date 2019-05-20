@@ -3,7 +3,7 @@
 #include "../../Core/Core.h"
 #include "../Token.h"
 
-XC_BEGIN_NAMESPACE_1(Tang)
+namespace vegetable_script
 {
     using namespace XC;
 
@@ -343,5 +343,4 @@ XC_BEGIN_NAMESPACE_1(Tang)
     public:
         Array<Pointer<AST> > mASTs;
     };
-
-} XC_END_NAMESPACE_1;
+}

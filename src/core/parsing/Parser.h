@@ -4,69 +4,68 @@
 #include "Lexer.h"
 #include "ASTs/CoreASTs.h"
 
-XC_BEGIN_NAMESPACE_1(Tang)
-{
-    class Parser
-    {
-    public:
-        Parser(Pointer<Lexer> lexer);
+namespace vegetable_script {
 
-        Parser(std::string sourceCode);
-        
-    public:
-        Pointer<Program> Parse();
+class Parser {
+ public:
+    explicit Parser(Pointer<Lexer> lexer);
 
-        void PrintTokens();
+    explicit Parser(std::string sourceCode);
 
-    private:
-        Pointer<Program> ParseProgram();
+ public:
+    Pointer<Program> Parse();
 
-        Pointer<VariableDefinition> ParseVariableDefinition();
+    void PrintTokens();
 
-        Pointer<FunctionDefinition> ParseFunctionDefinition();
+private:
+    Pointer<Program> ParseProgram();
 
-        Pointer<Statement> ParseStatement();
+    Pointer<VariableDefinition> ParseVariableDefinition();
 
-        Pointer<ExpressionStatement> ParseExpressionStatement();
+    Pointer<FunctionDefinition> ParseFunctionDefinition();
 
-        Pointer<BlockStatement> ParseBlockStatement();
+    Pointer<Statement> ParseStatement();
 
-        Pointer<IfStatement> ParseIfStatement();
+    Pointer<ExpressionStatement> ParseExpressionStatement();
 
-        Pointer<WhileStatement> ParseWhileStatement();
+    Pointer<BlockStatement> ParseBlockStatement();
 
-        Pointer<ForStatement> ParseForStatement();
+    Pointer<IfStatement> ParseIfStatement();
 
-        Pointer<Expression> ParseExpression();
-        
-        Pointer<Expression> ParseAssign();
+    Pointer<WhileStatement> ParseWhileStatement();
 
-        void ParseAssignPlus(Pointer<AssignExpression> leftParsed);
+    Pointer<ForStatement> ParseForStatement();
 
-        Pointer<Expression> ParseGreater();
+    Pointer<Expression> ParseExpression();
+    
+    Pointer<Expression> ParseAssign();
 
-        Pointer<Expression> ParseGreaterPlus(Pointer<Expression> leftParsed);
+    void ParseAssignPlus(Pointer<AssignExpression> leftParsed);
 
-        Pointer<Expression> ParsePlus(); 
+    Pointer<Expression> ParseGreater();
 
-        Pointer<Expression> ParsePlusPlus(Pointer<Expression> leftParsed);
+    Pointer<Expression> ParseGreaterPlus(Pointer<Expression> leftParsed);
 
-        Pointer<Expression> ParseMultiply();
+    Pointer<Expression> ParsePlus(); 
 
-        Pointer<Expression> ParseMultiplyPlus(Pointer<Expression> leftParsed);
+    Pointer<Expression> ParsePlusPlus(Pointer<Expression> leftParsed);
 
-        Pointer<Expression> ParseSmallExpression();
+    Pointer<Expression> ParseMultiply();
 
-        Pointer<Expression> ParseBracket();
+    Pointer<Expression> ParseMultiplyPlus(Pointer<Expression> leftParsed);
 
-        Pointer<NumberExpression> ParseNumber();
+    Pointer<Expression> ParseSmallExpression();
 
-        Pointer<VariableExpression> ParseVariable();
+    Pointer<Expression> ParseBracket();
 
-        Pointer<FunctionExpression> ParseFunctionExpression();
+    Pointer<NumberExpression> ParseNumber();
 
-    private:
-        Pointer<Lexer> mLexer;
-    };
+    Pointer<VariableExpression> ParseVariable();
+
+    Pointer<FunctionExpression> ParseFunctionExpression();
+
+private:
+    Pointer<Lexer> mLexer;
+};
 
 } XC_END_NAMESPACE_1;

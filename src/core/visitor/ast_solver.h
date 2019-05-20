@@ -2,8 +2,8 @@
 
 #include <iostream>
 #include <sstream>
-#include "../ASTs/CoreASTs.h"
-#include "../ASTs/Environment.h"
+#include "../ast/CoreASTs.h"
+#include "../ast/Environment.h"
 
 XC_BEGIN_NAMESPACE_1(Tang)
 {

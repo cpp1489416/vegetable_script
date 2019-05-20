@@ -1,7 +1,4 @@
 
-#ifndef MUL_H
-#define MUL_H
+#pragma once
 
 int mul(int a, int b);
-
-#endif

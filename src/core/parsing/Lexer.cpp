@@ -4,38 +4,32 @@
 
 using namespace std;
 
-namespace
-{
-    bool IsBracket(char c)
-    {
+namespace {
+    bool IsBracket(char c) {
         return c == '(' || c == ')' || c == '{' || c == '}';
     }
 
-    bool IsBlank(char c)
-    {
+    bool IsBlank(char c) {
         return c == ' ' || c == '\n' || c == '\r';
     }
 
-    bool IsDigit(char c)
-    {
+    bool IsDigit(char c) {
         return isdigit(c);
     }
 
-    bool IsAlpha(char c)
-    {
+    bool IsAlpha(char c) {
         return isalpha(c);
     }
 
-    bool IsNumber(char c)
-    {
+    bool IsNumber(char c) {
         return c >= '0' && c <= '9';
     }
 
-    bool IsSymbol(char c)
-    {
-        return !IsDigit(c) && !IsAlpha(c) && !IsNumber(c) && !IsBracket(c) && !IsBlank(c) && c != '\0';
+    bool IsSymbol(char c) {
+        return !IsDigit(c) && !IsAlpha(c) && !IsNumber(c) &&
+            !IsBracket(c) && !IsBlank(c) && c != '\0';
     }
-}
+}  // namespace
 
 XC_BEGIN_NAMESPACE_1(Tang)
 {
@@ -182,22 +176,15 @@ XC_BEGIN_NAMESPACE_1(Tang)
         mTokenArray.PushBack(ConvertStringToToken(s));
     }
 
-    Token Lexer::ConvertStringToToken(std::string s)
-    {
-        if (s == "(" || s == ")")
-        {
+    Token Lexer::ConvertStringToToken(std::string s) {
+        if (s == "(" || s == ")") {
             return Token(s, Token::Type::Bracket);
-        }
-        else if (IsAlpha(s[0]))
-        {
+        } else if (IsAlpha(s[0])) {
             return Token(s, Token::Type::Name);
-        }
-        else if (IsDigit(s[0]) || s[0] == '-' && s.length() > 1 && IsDigit(s[1]))
-        {
+        } else if (IsDigit(s[0]) || s[0] == '-' && s.length() > 1 &&
+            IsDigit(s[1])) {
             return Token(s, Token::Type::Number);
-        }
-        else
-        {
+        } else {
             return Token(s, Token::Type::None);
         }
     }
