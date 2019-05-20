@@ -95,12 +95,11 @@
                                                                       \
    private:                                                           \
     static std::tuple<const std::map<Type_, std::string>*,            \
-      const std::map<std::string, Type_> *>                           \
+      const std::map<std::string, Type_>* >                           \
       GenerateTypeStringsAndStringTypes() {                           \
       static std::map<Type_, std::string> type_strings;               \
       static std::map<std::string, Type_> string_types;               \
       if (type_strings.size() == 0) {                                 \
-        std::cout << "generate again" << std::endl;                   \
         std::string source = XC_MULTI_ENUM_STRINGIFY((__VA_ARGS__));  \
         int start_index =                                             \
           static_cast<int>(XC_MULTI_ENUM_TRAIT_FIRST(__VA_ARGS__));   \
