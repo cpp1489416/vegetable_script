@@ -10,17 +10,40 @@
 
 namespace vegetable_script {
 
+namespace detail {
+
+struct LexerResultError {
+  using Ptr = std::shared_ptr<LexerResultError>;
+
+  int row;
+  int column;
+};
+
+struct LexerResult {
+  using Ptr = std::shared_ptr<LexerResult>;
+  using Error = LexerResultError;
+  using List = std::deque<Ptr>;
+
+  Token::Ptr token;
+  Error::Ptr error;
+};
+
+}  // namespace detail
+
 class Lexer {
  public:
-  explicit Lexer(SourceProvider* source_provider);
+  using Ptr = std::shared_ptr<Lexer>;
+  using Result = detail::LexerResult;
+
+  explicit Lexer(SourceProvider::Ptr source_provider);
 
   bool HasNext();
 
-  std::shared_ptr<Token> MoveNext();
+  Result::Ptr MoveNext();
 
-  std::shared_ptr<Token> LookCurrent();
+  Result::Ptr LookCurrent();
 
-  std::shared_ptr<Token> LookAhead(int more = 1);
+  Result::Ptr LookAhead(int more = 1);
 
  private:
   void Epoch();
@@ -31,13 +54,13 @@ class Lexer {
 
   void SkipBlanks();
 
-  void RaiseError();
-
   void PushBackToken(const std::string& string,
       const Token::Type& type, int row, int column);
 
-  SourceProvider* source_provider_;
-  std::deque<std::shared_ptr<Token> > tokens_;
+  void PushBackError(int row, int column);
+
+  SourceProvider::Ptr source_provider_;
+  Result::List results_;
 };
 
 }  // namespace vegetable_script

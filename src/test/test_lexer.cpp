@@ -8,7 +8,6 @@
 #include <tuple>
 #include <string>
 
-
 XC_TEST_CASE(LEXER, true) {
   std::cout << "moving";
   using namespace vegetable_script;  // NOLINT
@@ -40,10 +39,10 @@ XC_TEST_CASE(LEXER, true) {
   )DEF";
   std::cout << "moving";
   SourceProvider source_provider(source_code);
-  Lexer lexer = Lexer(&source_provider);
+  Lexer lexer = Lexer(SourceProvider::Ptr(&source_provider));
   std::cout << "moving";
   while (lexer.HasNext()) {
-    std::cout << lexer.LookCurrent()->ToString() << std::endl;
+    std::cout << lexer.LookCurrent()->token->ToString() << std::endl;
     lexer.MoveNext();
   }
   std::cout << "eat" << std::endl;

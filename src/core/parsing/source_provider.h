@@ -2,11 +2,14 @@
 #define VEGETABLE_SCRIPT_CORE_PARSING_SOURCE_PROVIDER_H_
 
 #include <string>
+#include <memory>
 
 namespace vegetable_script {
 
 class SourceProvider {
  public:
+  using Ptr = SourceProvider*;
+
   explicit SourceProvider(const std::string& source);
 
   char LookCurrent();

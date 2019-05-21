@@ -25,60 +25,62 @@ bool IsBlank(char c) {
 
 namespace vegetable_script {
 
-Lexer::Lexer(SourceProvider* source_provider):
+Lexer::Lexer(SourceProvider::Ptr source_provider):
   source_provider_(source_provider) {
 }
 
 bool Lexer::HasNext() {
-  if (tokens_.size() > 1) {
+  if (results_.size() > 1) {
     return true;
   }
-  if (tokens_.size() == 0) {
+  if (results_.size() == 0) {
     Epoch();
   }
-  if (tokens_.front()->type == Token::Type::kEnd) {
+  if (results_.front()->token->type == Token::Type::kEnd) {
     return false;
   }
   return true;
 }
 
-std::shared_ptr<Token> Lexer::MoveNext() {
-  if (tokens_.size() == 0) {
+Lexer::Result::Ptr Lexer::MoveNext() {
+  if (results_.size() == 0) {
     LookCurrent();
   }
-  tokens_.pop_front();
+  results_.pop_front();
   Epoch();
   return LookCurrent();
 }
 
-std::shared_ptr<Token> Lexer::LookCurrent() {
-  if (tokens_.size() == 0) {
+Lexer::Result::Ptr Lexer::LookCurrent() {
+  if (results_.size() == 0) {
     Epoch();
   }
-  return tokens_.front();
+  return results_.front();
 }
 
-std::shared_ptr<Token> Lexer::LookAhead(int more) {
+Lexer::Result::Ptr Lexer::LookAhead(int more) {
   if (more <= 0) {
     return LookCurrent();
   }
-  if (tokens_.size() >= more + 1) {
-    return tokens_[more];
+  if (results_.size() >= more + 1) {
+    return results_[more];
   }
-  int times = 1 + more - tokens_.size();
+  int times = 1 + more - results_.size();
   while (times--) {
     Epoch();
   }
-  return tokens_.back();
+  return results_.back();
 }
 
 void Lexer::Epoch() {
-  if (tokens_.size() != 0 && tokens_.front()->type == Token::Type::kEnd) {
+  if (results_.size() != 0 &&
+      results_.front()->token->type == Token::Type::kEnd) {
     return;
   }
   SkipBlanks();
   if (!source_provider_->HasNext()) {
-    tokens_.push_back(std::shared_ptr<Token>(new Token("", Token::Type::kEnd)));
+    PushBackToken("", Token::Type::kEnd,
+        source_provider_->LookRow(), source_provider_->LookColumn());
     return;
   }
   Epoch0();
@@ -208,7 +210,7 @@ void Lexer::Epoch0() {
       } else if (IsNumber(c)) {
         status = 2;
       } else {
-        RaiseError();
+        PushBackError(row, column);
         return;
       }
       break;
@@ -221,7 +223,7 @@ void Lexer::EpochElse(int status, std::string* string, int row, int column) {
   while (true) {
     char c = source_provider_->LookCurrent();
     if (c == '\0') {
-      RaiseError();
+      PushBackError(row, column);
       return;
     }
     switch (status) {
@@ -468,16 +470,21 @@ void Lexer::SkipBlanks() {
   }
 }
 
-void Lexer::RaiseError() {
-  std::cout << "a error occured when lexing, at(" +
-      std::to_string(source_provider_->LookRow())
-      + ", " + std::to_string(source_provider_->LookColumn()) + ")\n";
-}
-
 void Lexer::PushBackToken(const std::string& string,
     const Token::Type& type, int row, int column) {
-  tokens_.push_back(std::shared_ptr<Token>(
-      new Token(string, type, row, column)));
+  results_.push_back(Result::Ptr(new Result {
+      Token::Ptr(new Token(string, type, row, column)),
+      nullptr
+  }));
+}
+
+void Lexer::PushBackError(int row, int column) {
+  results_.push_back(Result::Ptr(new Result {
+      Token::Ptr(new Token("", Token::Type::kError, row, column)),
+      Result::Error::Ptr(new Result::Error {
+          row, column
+      })
+  }));
 }
 
 }  // namespace vegetable_script

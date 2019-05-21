@@ -47,5 +47,12 @@ XC_TEST_CASE(ENUM, false) {
 XC_TEST_CASE(ARFDS, false) {
 }
 
-XC_TEST_CASE(Token, false) {
+XC_TEST_CASE(TokenNull, true) {
+  std::shared_ptr<int> i = nullptr;
+  if (i) {
+    std::cout << "not null";
+  } else {
+    std::cout << "null";
+  }
+  std::cout << "terfef";
 }

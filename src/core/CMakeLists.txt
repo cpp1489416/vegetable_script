@@ -1,5 +1,6 @@
 
 project(vegetable-script)
+add_definitions(-std=c++11)
 
 set(src_list 
     mul.cpp

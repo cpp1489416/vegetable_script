@@ -10,4 +10,8 @@ std::string Token::ToString() const {
   return "Token(\"" + string + "\", " + type.ToString() + ")";
 }
 
+std::string Token::ToEscapedString() const {
+  return "";
+}
+
 }  // namespace vegetable_script
