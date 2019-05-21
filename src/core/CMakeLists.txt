@@ -5,6 +5,7 @@ set(src_list
     mul.cpp
     common/string_util.cpp
     parsing/token.cpp
+    parsing/source_provider.cpp
     parsing/lexer.cpp)
 
 add_library(vegetable-script-core SHARED ${src_list})

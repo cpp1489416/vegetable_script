@@ -2,38 +2,42 @@
 #define VEGETABLE_SCRIPT_CORE_PARSION_LEXER_H_
 
 #include <string>
-#include <vector>
-#include "./Token.h"
+#include <deque>
+#include <memory>
+#include "./source_provider.h"
+#include "./token.h"
+#include "../common/all.h"
 
 namespace vegetable_script {
 
 class Lexer {
  public:
-  explicit Lexer(std::string source_code) {
-    source_code_ = source_code;
-    Solve();
-  }
+  explicit Lexer(SourceProvider* source_provider);
 
-  bool IsHasNext() const;
+  bool HasNext();
 
-  void MoveToFront();
+  std::shared_ptr<Token> MoveNext();
 
-  Token GetNextToken();
+  std::shared_ptr<Token> LookCurrent();
 
-  Token GetPreviousToken();
-
-  Token LookAhead(int more = 1);
+  std::shared_ptr<Token> LookAhead(int more = 1);
 
  private:
-  void Solve();
+  void Epoch();
 
-  void AddString(std::string s);
+  void Epoch0();
 
-  Token ConvertStringToToken(std::string s);
+  void EpochElse(int status, std::string* string, int row, int column);
 
-  std::vector<Token> token_array_;
-  std::string source_code_;
-  int current_index_ = 0;
+  void SkipBlanks();
+
+  void RaiseError();
+
+  void PushBackToken(const std::string& string,
+      const Token::Type& type, int row, int column);
+
+  SourceProvider* source_provider_;
+  std::deque<std::shared_ptr<Token> > tokens_;
 };
 
 }  // namespace vegetable_script

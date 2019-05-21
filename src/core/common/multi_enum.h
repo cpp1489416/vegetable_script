@@ -81,7 +81,7 @@
       if (itr != types_.cend()) {                                     \
         ans += TypeToString(*itr);                                    \
         for (++itr; itr != types_.cend(); ++itr) {                    \
-          ans += " ,";                                                \
+          ans += ", ";                                                \
           ans += TypeToString(*itr);                                  \
         }                                                             \
       }                                                               \

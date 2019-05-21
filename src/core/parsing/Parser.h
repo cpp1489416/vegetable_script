@@ -46,7 +46,7 @@ private:
 
     Pointer<Expression> ParseGreaterPlus(Pointer<Expression> leftParsed);
 
-    Pointer<Expression> ParsePlus(); 
+    Pointer<Expression> ParsePlus();
 
     Pointer<Expression> ParsePlusPlus(Pointer<Expression> leftParsed);
 

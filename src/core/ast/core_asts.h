@@ -253,6 +253,6 @@ struct Program : public Ast {
   std::vector<Pointer<Ast> > asts;
 };
 
-}
+}  // namespace vegetable_script
 
 #endif  // VEGETABLE_SCRIPT_CORE_AST_CORE_ASTS_H_

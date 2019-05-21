@@ -8,18 +8,16 @@ namespace vegetable_script {
 
 class Token {
  public:
-  enum class sTypess {
-    kNone, kEnd, kBracket, kNumber, kOperator, kKeyword, kName,  // main type
-    kLeftBracket, kRightBracket,
-  };
   XC_MULTI_ENUM(
     Type,
+
     kNone,
     kEnd,
+    kSemicolon,
 
     kBracket,
     kBracketLeft, kBracketRight,
-    kBracketBig, kBracketMiddle, kBracketSmall,
+    kBracketBig, kBracketMedium, kBracketSmall,
 
     kNumber, kNumberFloat, kNumberInteger,
 
@@ -27,29 +25,31 @@ class Token {
     kOperatorPlus, kOperatorMinus,
     kOperatorMultiply, kOperatorDivide,
     kOperatorNegative,
+    kOperatorAnd, kOperatorOr,
+    kOperatorGreater, kOperatorLess,
+    kOperatorShiftLeft, kOperatorShitRight,
+
+    kComment,
+    kString,
 
     kKeyword,
-    kName,
+    kKeywordIf, kKeywordElse, kKeywordWhile,
+
+    kIdentifier
   )
 
-  explicit Token(std::string string = "", Type type = Type::kNone);
-
-  std::string string() const { return string_; }
-
-  Type type() const { return type_; }
+  explicit Token(std::string string = "", Type type = Type::kNone,
+    int row = -1, int column = -1);
 
   std::string ToString() const;
 
- private:
-  static std::string TypeToString(Type type);
+  std::string string;
 
-  std::string string_;
+  Type type;
 
-  Type type_;
+  int row;
 
-  friend class Parser;
-
-  friend class Lexer;
+  int column;
 };
 
 }  // namespace vegetable_script

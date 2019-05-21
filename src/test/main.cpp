@@ -47,23 +47,5 @@ XC_TEST_CASE(ENUM, false) {
 XC_TEST_CASE(ARFDS, false) {
 }
 
-XC_TEST_CASE(Token, true) {
-  const char* source_code = R"DEF(
-    var i = 1;
-    var j = 4;
-    var k = -4.3;
-    if (i == 3) {
-      return false;
-    }
-  )DEF";
-  using namespace vegetable_script; // NOLINT
-  Lexer l = Lexer(source_code);
-  while (l.IsHasNext()) {
-    Token t = l.GetNextToken();
-    std::cout << "next token: " << t.ToString() << std::endl;
-  }
-
-
-  std::cout << source_code;
-  std::cout << "eat shit !!!" << std::endl;
+XC_TEST_CASE(Token, false) {
 }

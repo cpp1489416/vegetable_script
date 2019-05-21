@@ -1,159 +1,483 @@
 
 #include "./lexer.h"
 #include <cstring>
+#include <iostream>
 
 namespace {
-bool IsBracket(char c) {
-  return c == '(' || c == ')' || c == '{' || c == '}';
-}
 
-bool IsBlank(char c) {
-  return c == ' ' || c == '\n' || c == '\r';
-}
-
-bool IsDigit(char c) {
-  return isdigit(c);
-}
-
-bool IsAlpha(char c) {
-  return isalpha(c);
+bool IsIdentifier(char c) {
+  return c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z' || c == '_';
 }
 
 bool IsNumber(char c) {
   return c >= '0' && c <= '9';
 }
 
-bool IsSymbol(char c) {
-  return !IsDigit(c) && !IsAlpha(c) && !IsNumber(c) &&
-    !IsBracket(c) && !IsBlank(c) && c != '\0';
+bool IsSubIdentifier(char c) {
+  return IsIdentifier(c) || IsNumber(c);
+}
+
+bool IsBlank(char c) {
+  return c == ' ' || c == '\n' || c == '\r' || c == '\t';
 }
 
 }  // namespace
 
 namespace vegetable_script {
 
-bool Lexer::IsHasNext() const {
-  return current_index_ < token_array_.size();
+Lexer::Lexer(SourceProvider* source_provider):
+  source_provider_(source_provider) {
 }
 
-void Lexer::MoveToFront() {
-  current_index_ = 0;
-}
-
-Token Lexer::GetNextToken() {
-  if (current_index_ >= token_array_.size()) {
-    throw "error";
+bool Lexer::HasNext() {
+  if (tokens_.size() > 1) {
+    return true;
   }
-
-  return token_array_[current_index_++];
-}
-
-Token Lexer::GetPreviousToken() {
-  return  token_array_[--current_index_];
-}
-
-Token Lexer::LookAhead(int more) {
-  if (current_index_ + more - 1>= token_array_.size()) {
-    return Token("END", Token::Type::kEnd);
+  if (tokens_.size() == 0) {
+    Epoch();
   }
-
-  return token_array_[current_index_ + more - 1];
+  if (tokens_.front()->type == Token::Type::kEnd) {
+    return false;
+  }
+  return true;
 }
 
-void Lexer::Solve() {
-  int position = 0;
-  while (true) {
-    if (position >= source_code_.size()) {
+std::shared_ptr<Token> Lexer::MoveNext() {
+  if (tokens_.size() == 0) {
+    LookCurrent();
+  }
+  tokens_.pop_front();
+  Epoch();
+  return LookCurrent();
+}
+
+std::shared_ptr<Token> Lexer::LookCurrent() {
+  if (tokens_.size() == 0) {
+    Epoch();
+  }
+  return tokens_.front();
+}
+
+std::shared_ptr<Token> Lexer::LookAhead(int more) {
+  if (more <= 0) {
+    return LookCurrent();
+  }
+  if (tokens_.size() >= more + 1) {
+    return tokens_[more];
+  }
+  int times = 1 + more - tokens_.size();
+  while (times--) {
+    Epoch();
+  }
+  return tokens_.back();
+}
+
+void Lexer::Epoch() {
+  if (tokens_.size() != 0 && tokens_.front()->type == Token::Type::kEnd) {
+    return;
+  }
+  SkipBlanks();
+  if (!source_provider_->HasNext()) {
+    tokens_.push_back(std::shared_ptr<Token>(new Token("", Token::Type::kEnd)));
+    return;
+  }
+  Epoch0();
+}
+
+void Lexer::Epoch0() {
+  int row = source_provider_->LookRow();
+  int column = source_provider_->LookColumn();
+  std::string string;
+  char c = source_provider_->LookCurrent();
+  source_provider_->MoveNext();
+  string += c;
+  int status;
+  switch (c) {
+    case ';':
+      PushBackToken(";", Token::Type::kSemicolon, row, column);
+      return;
+    case '(':
+      PushBackToken(
+          "(",
+          Token::Type() <<
+              Token::Type::kBracket <<
+              Token::Type::kBracketSmall <<
+              Token::Type::kBracketLeft,
+          row,
+          column);
+      return;
+    case ')':
+      PushBackToken(
+          ")",
+          Token::Type() <<
+              Token::Type::kBracket <<
+              Token::Type::kBracketSmall <<
+              Token::Type::kBracketRight,
+          row,
+          column);
+      return;
+    case '[':
+      PushBackToken(
+          "[",
+          Token::Type() <<
+              Token::Type::kBracket <<
+              Token::Type::kBracketMedium <<
+              Token::Type::kBracketLeft,
+          row,
+          column);
+        return;
+    case ']':
+      PushBackToken(
+          "]",
+          Token::Type() <<
+              Token::Type::kBracket <<
+              Token::Type::kBracketMedium <<
+              Token::Type::kBracketRight,
+          row,
+          column);
+      return;
+    case '{':
+      PushBackToken(
+          "{",
+          Token::Type() <<
+              Token::Type::kBracket <<
+              Token::Type::kBracketBig <<
+            Token::Type::kBracketLeft,
+          row,
+          column);
+      return;
+    case '}':
+      PushBackToken(
+          "}",
+          Token::Type() <<
+              Token::Type::kBracket <<
+              Token::Type::kBracketBig <<
+              Token::Type::kBracketRight,
+          row,
+          column);
+      return;
+    case '*':
+      PushBackToken(
+          "*",
+          Token::Type() <<
+              Token::Type::kOperator <<
+              Token::Type::kOperatorMultiply,
+          row,
+          column);
+      return;
+    case '<':
+      PushBackToken(
+          "<",
+          Token::Type() <<
+              Token::Type::kOperator <<
+              Token::Type::kOperatorLess,
+          row,
+          column);
+      return;
+    case '>':
+      PushBackToken(
+          ">",
+          Token::Type() <<
+              Token::Type::kOperator <<
+              Token::Type::kOperatorGreater,
+          row,
+          column);
+      return;
+    case '.':
+      status = 3;
       break;
-    }
-
-    char c = source_code_[position];
-    std::string newString;
-
-    if (IsBlank(c)) {
-      ++position;
-      continue;
-    }
-
-    if (c == '\0') {
+    case '+':
+    case '-':
+      status = 4;
       break;
-    }
-
-    if (c == '-') {
-      if (IsNumber(source_code_[position + 1])) {
-        newString = "-";
-        ++position;
-
-        while (IsNumber(source_code_[position])) {
-          newString += source_code_[position];
-          ++position;
-        }
-
-        AddString(newString);
-        continue;
+    case '&':
+      status = 5;
+      break;
+    case '|':
+      status = 7;
+      break;
+    case '/':
+      status = 9;
+      break;
+    case '"':
+      status = 13;
+      break;
+    default: {
+      if (IsIdentifier(c)) {
+        status = 1;
+      } else if (IsNumber(c)) {
+        status = 2;
       } else {
-        AddString("-");
-        ++position;
-        continue;
+        RaiseError();
+        return;
       }
-    } else if (IsDigit(c)) {
-      std::string newString;
-      while (IsDigit(source_code_[position])) {
-        newString +=source_code_[position];
-        ++position;
-      }
-
-      AddString(newString);
-      continue;
-    } else if (IsBracket(c)) {
-      AddString(std::string(1, c));
-      ++position;
-      continue;
-    } else if (IsAlpha(c)) {
-      std::string newString;
-      while (IsNumber(source_code_[position]) ||
-        IsAlpha(source_code_[position])) {
-        newString += source_code_[position];
-        ++position;
-      }
-
-      AddString(newString);
-      continue;
-    } else if (c == ';') {
-      ++position;
-      AddString(";");
-      continue;
-    } else if (IsSymbol(c)) {
-      std::string newString;
-      while (IsSymbol(source_code_[position])) {
-        newString += source_code_[position];
-        ++position;
-      }
-      AddString(newString);
-      continue;
-    } else {
-      throw "Error";
+      break;
     }
   }
-
-  token_array_.push_back(Token("", Token::Type::kEnd));
+  EpochElse(status, &string, row, column);
 }
 
-void Lexer::AddString(std::string s) {
-  token_array_.push_back(ConvertStringToToken(s));
-}
-
-Token Lexer::ConvertStringToToken(std::string s) {
-  if (s == "(" || s == ")") {
-    return Token(s, Token::Type::kBracket);
-  } else if (IsAlpha(s[0])) {
-    return Token(s, Token::Type::kName);
-  } else if (IsDigit(s[0]) || s[0] == '-' && s.length() > 1 &&
-    IsDigit(s[1])) {
-    return Token(s, Token::Type::kNumber);
-  } else {
-    return Token(s, Token::Type::kNone);
+void Lexer::EpochElse(int status, std::string* string, int row, int column) {
+  while (true) {
+    char c = source_provider_->LookCurrent();
+    if (c == '\0') {
+      RaiseError();
+      return;
+    }
+    switch (status) {
+      case 0: {
+        break;
+      }
+      case 1: {
+        char c = source_provider_->LookCurrent();
+        if (IsSubIdentifier(c)) {
+          *string += c;
+          source_provider_->MoveNext();
+        } else {
+          PushBackToken(*string, Token::Type::kIdentifier, row, column);
+          return;
+        }
+        break;
+      }
+      case 2: {
+        char c = source_provider_->LookCurrent();
+        if (IsNumber(c)) {
+          *string += c;
+          source_provider_->MoveNext();
+        } else if (c == '.') {
+          *string += c;
+          source_provider_->MoveNext();
+          status = 3;
+        } else {
+          PushBackToken(
+              *string,
+              Token::Type() <<
+                  Token::Type::kNumber <<
+                  Token::Type::kNumberInteger,
+              row,
+              column);
+          return;
+        }
+        break;
+      }
+      case 3: {
+        char c = source_provider_->LookCurrent();
+        if (IsNumber(c)) {
+          *string += c;
+          source_provider_->MoveNext();
+        } else {
+          PushBackToken(
+              *string,
+              Token::Type() <<
+                  Token::Type::kNumber <<
+                  Token::Type::kNumberFloat,
+              row,
+              column);
+          return;
+        }
+        break;
+      }
+      case 4: {
+        char c = source_provider_->LookCurrent();
+        if (IsNumber(c)) {
+          *string += c;
+          source_provider_->MoveNext();
+          status = 2;
+        } else if (c == '.') {
+          *string += c;
+          source_provider_->MoveNext();
+          status = 3;
+        } else {
+          Token::Type type = Token::Type::kOperator;
+          if (*string == "+") {
+            type << Token::Type::kOperatorPlus;
+          } else {
+            type << Token::Type::kOperatorMinus;
+          }
+          PushBackToken(
+              *string,
+              type,
+              row,
+              column);
+          return;
+        }
+        break;
+      }
+      case 5: {
+        char c = source_provider_->LookCurrent();
+        if (c == '&') {
+          *string += c;
+          source_provider_->MoveNext();
+          PushBackToken(
+              *string,
+              Token::Type() <<
+                  Token::Type::kOperator <<
+                  Token::Type::kOperatorAnd,
+              row,
+              column);
+          return;
+        } else {
+          PushBackToken(
+              *string,
+              Token::Type() <<
+                  Token::Type::kOperator <<
+                  Token::Type::kOperatorAnd,
+              row,
+              column);
+          return;
+        }
+        break;
+      }
+      case 7: {
+        char c = source_provider_->LookCurrent();
+        if (c == '|') {
+          *string += c;
+          source_provider_->MoveNext();
+          PushBackToken(
+              *string,
+              Token::Type() <<
+                  Token::Type::kOperator <<
+                  Token::Type::kOperatorOr,
+              row,
+              column);
+          return;
+        } else {
+          source_provider_->MoveNext();
+          PushBackToken(
+              *string,
+              Token::Type() <<
+                  Token::Type::kOperator <<
+                  Token::Type::kOperatorOr,
+              row,
+              column);
+          return;
+        }
+        break;
+      }
+      case 9: {
+        char c = source_provider_->LookCurrent();
+        if (c == '/') {
+          *string += c;
+          source_provider_->MoveNext();
+          status = 10;
+        } else if (c == '*') {
+          *string += c;
+          source_provider_->MoveNext();
+          status = 11;
+        } else {
+          PushBackToken(
+              *string,
+              Token::Type() <<
+                  Token::Type::kOperator <<
+                  Token::Type::kOperatorDivide,
+              row,
+              column);
+          return;
+        }
+        break;
+      }
+      case 10: {
+        char c = source_provider_->LookCurrent();
+        if (c == '\n') {
+          *string += c;
+          source_provider_->MoveNext();
+          PushBackToken(
+              *string,
+              Token::Type::kComment,
+              row,
+              column);
+          return;
+        } else {
+          *string += c;
+          source_provider_->MoveNext();
+        }
+        break;
+      }
+      case 11: {
+        char c = source_provider_->LookCurrent();
+        if (c == '*') {
+          *string += c;
+          source_provider_->MoveNext();
+          status = 12;
+        } else {
+          *string += c;
+          source_provider_->MoveNext();
+        }
+        break;
+      }
+      case 12: {
+        char c = source_provider_->LookCurrent();
+        if (c == '/') {
+          *string += c;
+          source_provider_->MoveNext();
+          PushBackToken(
+              *string,
+              Token::Type::kComment,
+              row,
+              column);
+          return;
+        } else {
+          *string += c;
+          source_provider_->MoveNext();
+          status = 11;
+        }
+        break;
+      }
+      case 13: {
+        char c = source_provider_->LookCurrent();
+        if (c == '"') {
+          *string += c;
+          source_provider_->MoveNext();
+          PushBackToken(
+              *string,
+              Token::Type::kString,
+              row,
+              column);
+          return;
+        } else if (c == '\\') {
+          source_provider_->MoveNext();
+          status = 14;
+        } else {
+          *string += c;
+          source_provider_->MoveNext();
+        }
+        break;
+      }
+      case 14: {
+        char c = source_provider_->LookCurrent();
+        *string += c;
+        source_provider_->MoveNext();
+        status = 13;
+        break;
+      }
+      default: {
+        break;
+      }
+    }
   }
+}
+
+void Lexer::SkipBlanks() {
+  while (source_provider_->HasNext()) {
+    char c = source_provider_->LookCurrent();
+    if (IsBlank(c)) {
+      source_provider_->MoveNext();
+    } else {
+      return;
+    }
+  }
+}
+
+void Lexer::RaiseError() {
+  std::cout << "a error occured when lexing, at(" +
+      std::to_string(source_provider_->LookRow())
+      + ", " + std::to_string(source_provider_->LookColumn()) + ")\n";
+}
+
+void Lexer::PushBackToken(const std::string& string,
+    const Token::Type& type, int row, int column) {
+  tokens_.push_back(std::shared_ptr<Token>(
+      new Token(string, type, row, column)));
 }
 
 }  // namespace vegetable_script

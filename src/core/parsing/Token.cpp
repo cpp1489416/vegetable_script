@@ -2,17 +2,12 @@
 
 namespace vegetable_script {
 
-Token::Token(std::string string, Token::Type type) {
-  string_ = string;
-  type_ = type;
+Token::Token(std::string string, Token::Type type, int row, int column):
+  string(string), type(type), row(row), column(column) {
 }
 
 std::string Token::ToString() const {
-  return "Token(" + string_ + ", " + TypeToString(type_) + ")";
-}
-
-std::string Token::TypeToString(Token::Type type) {
-  return type.ToString();
+  return "Token(\"" + string + "\", " + type.ToString() + ")";
 }
 
 }  // namespace vegetable_script
