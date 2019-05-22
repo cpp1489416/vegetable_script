@@ -8,7 +8,7 @@ namespace vegetable_script {
 
 class SourceProvider {
  public:
-  using Ptr = SourceProvider*;
+  using Ptr = std::shared_ptr<SourceProvider>;
 
   explicit SourceProvider(const std::string& source);
 

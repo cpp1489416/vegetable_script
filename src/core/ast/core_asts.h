@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include "../util/pointer.h"
+#include <memory>
 #include "../parsing/token.h"
 
 namespace vegetable_script {
@@ -20,7 +20,7 @@ struct VariableExpression;
 struct LiteralExpression;
 struct NumberExpression;
 struct FunctionExpression;
-struct CalculateExpression;
+struct BinaryExpression;
 struct CompareExpression;
 struct AssignExpression;
 
@@ -49,7 +49,6 @@ struct ParameterDefinition;
 using Argument = ParameterDefinition;
 struct FunctionDefinition;
 using ParameterList = std::vector<Pointer<ParameterDefinition> >;
-using ArgumentList = std::vector<Pointer<Expression> >;
 
 struct Symbol;
 struct VariableSymbol;
@@ -65,7 +64,7 @@ struct IVisitor {
 
   virtual void Visit(VariableExpression* node) {}
 
-  virtual void Visit(CalculateExpression* node) {}
+  virtual void Visit(BinaryExpression* node) {}
 
   virtual void Visit(CompareExpression* node) {}
 
@@ -105,17 +104,29 @@ struct IVisitable {
   virtual void Accept(IVisitor* visitor) = 0;
 };
 
-struct Ast : public IVisitable {
+struct Ast : public IVisitable, std::enable_shared_from_this<Ast> {
+  using WeakPtr = std::weak_ptr<Ast>;
+  using Ptr = std::shared_ptr<Ast>;
+
+  WeakPtr parent;
 };
 
 struct Expression : public Ast {
+  using Ptr = std::shared_ptr<Expression>;
+  using WeakPtr = std::weak_ptr<Expression>;
 };
 
 struct EmptyExpression : public Expression {
+  using Ptr = std::shared_ptr<EmptyExpression>;
+  using WeakPtr = std::weak_ptr<EmptyExpression>;
+
   void Accept(IVisitor* visitor) override { visitor->Visit(this); }
 };
 
 struct NumberExpression : public Expression {
+  using Ptr = std::shared_ptr<NumberExpression>;
+  using WeakPtr = std::weak_ptr<NumberExpression>;
+
   void Accept(IVisitor* visitor) override { visitor->Visit(this); }
 
   Token token;
@@ -130,25 +141,28 @@ struct VariableExpression : public Expression {
 };
 
 struct FunctionExpression : public Expression {
-    void Accept(IVisitor* visitor) override { visitor->Visit(this); }
+  using ArgumentList = std::vector<Expression::Ptr>;
 
-    std::string name;
-    ArgumentList argument_list;
+  void Accept(IVisitor* visitor) override { visitor->Visit(this); }
+
+  std::string name;
+  ArgumentList argument_list;
 };
 
-struct CalculateExpression : public Expression {
-  enum struct Operator {
+struct BinaryExpression : public Expression {
+  XC_MULTI_ENUM(
+    Operator,
     kPlus,  // +
     kMinus,  // -
     kMultiply,  // *
     kDivide,  // /
-  };
+  )
 
   void Accept(IVisitor* visitor) override { visitor->Visit(this); }
 
-  Pointer<Expression> left_expression;
+  Expression::Ptr left_expression;
   Operator operatorr;
-  Pointer<Expression> right_expression;
+  Expression::Ptr right_expression;
 };
 
 struct CompareExpression : public Expression {

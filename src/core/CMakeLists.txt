@@ -8,9 +8,9 @@ set(src_list
     parsing/token.cpp
     parsing/source_provider.cpp
     parsing/lexer.cpp)
-
-add_library(vegetable-script-core SHARED ${src_list})
-add_library(vegetable-script-core-static STATIC ${src_list})
+	
+add_library(vegetable-script-core STATIC ${src_list})
+add_library(vegetable-script-core-shared SHARED ${src_list})
 
 file(COPY .
     DESTINATION ${PROJECT_BINARY_DIR}/../../dist/include/vegetable_script

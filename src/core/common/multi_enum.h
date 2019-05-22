@@ -5,15 +5,15 @@
 #include <set>
 #include <map>
 #include <tuple>
+#include <iostream>
 
 #define XC_MULTI_ENUM_STRINGIFY(x) #x
-
-#define XC_MULTI_ENUM_TRAIT_FIRST(x, ...) x
 
 #define XC_MULTI_ENUM(ENUM_NAME, ...)                                 \
   class ENUM_NAME {                                                   \
    public:                                                            \
-    enum Type_ {                                                      \
+    enum Type_ : int {                                                \
+      k##ENUM_NAME##Default = 0,                                      \
       __VA_ARGS__                                                     \
     };                                                                \
                                                                       \
@@ -31,10 +31,12 @@
                                                                       \
     ENUM_NAME& operator=(const Type_& rhs) {                          \
       types_.insert(rhs);                                             \
+      return *this;                                                   \
     }                                                                 \
                                                                       \
     ENUM_NAME& operator=(const ENUM_NAME& rhs) {                      \
       types_ = rhs.types_;                                            \
+      return *this;                                                   \
     }                                                                 \
                                                                       \
     bool operator==(const ENUM_NAME& rhs) const {                     \
@@ -66,6 +68,7 @@
     static std::string TypeToString(Type_ type) {                     \
       auto type_strings =                                             \
         std::get<0>(GenerateTypeStringsAndStringTypes());             \
+        std::cout << "getted type: " << (int)type << std::endl;             \
       return type_strings->at(type);                                  \
     }                                                                 \
                                                                       \
@@ -100,21 +103,22 @@
       static std::map<Type_, std::string> type_strings;               \
       static std::map<std::string, Type_> string_types;               \
       if (type_strings.size() == 0) {                                 \
+		type_strings[k##ENUM_NAME##Default] = std::string() +         \
+            "k" + #ENUM_NAME + "Default";                             \
         std::string source = XC_MULTI_ENUM_STRINGIFY((__VA_ARGS__));  \
-        int start_index =                                             \
-          static_cast<int>(XC_MULTI_ENUM_TRAIT_FIRST(__VA_ARGS__));   \
-          char brackets_array[] = { ' ', '(', ')' };                  \
-          std::set<char> brackets(brackets_array,                     \
-            brackets_array + 3);                                      \
-          source = xc::StringUtil::RemoveChars(source, brackets);     \
-          std::vector<std::string> strs =                             \
-            xc::StringUtil::Split(source, ',');                       \
-          for (size_t i = 0; i < strs.size(); ++i) {                  \
-            type_strings[static_cast<Type_>(start_index + i)] =       \
-              strs[i];                                                \
-            string_types[strs[i]] =                                   \
-              static_cast<Type_>(start_index + i);                    \
-          }                                                           \
+        int start_index = 1;                                          \
+        char brackets_array[] = { ' ', '(', ')' };                    \
+        std::set<char> brackets(brackets_array,                       \
+        brackets_array + 3);                                          \
+        source = xc::StringUtil::RemoveChars(source, brackets);       \
+        std::vector<std::string> strs =                               \
+        xc::StringUtil::Split(source, ',');                           \
+        for (size_t i = 0; i < strs.size(); ++i) {                    \
+        type_strings[static_cast<Type_>(start_index + i)] =           \
+            strs[i];                                                  \
+        string_types[strs[i]] =                                       \
+            static_cast<Type_>(start_index + i);                      \
+        }                                                             \
       }                                                               \
       return std::make_tuple(&type_strings, &string_types);           \
     }                                                                 \

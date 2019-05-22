@@ -4,6 +4,7 @@
 #include "../common/all.h"
 #include <string>
 #include <memory>
+#include <initializer_list>
 
 namespace vegetable_script {
 
@@ -56,6 +57,8 @@ class Token {
   std::string ToString() const;
 
   std::string ToEscapedString() const;
+
+  bool Match(std::initializer_list<Type::Type_> types);
 
   std::string string;
 

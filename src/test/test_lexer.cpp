@@ -33,17 +33,21 @@ XC_TEST_CASE(LEXER, true) {
     fd
     sad*/
     //
-    f | || & && & &
+    f | |||& && & &
     "stri\dng"
     ()
   )DEF";
   std::cout << "moving";
-  SourceProvider source_provider(source_code);
-  Lexer lexer = Lexer(SourceProvider::Ptr(&source_provider));
+  auto source_provider = std::make_shared<SourceProvider>(source_code);
+  Lexer lexer = Lexer(source_provider);
   std::cout << "moving";
   while (lexer.HasNext()) {
-    std::cout << lexer.LookCurrent()->token->ToString() << std::endl;
-    lexer.MoveNext();
+	  auto result = lexer.LookCurrent();
+
+	  std::cout << result->token->ToString() << std::endl;
+	  lexer.MoveNext();
   }
+  system("Pause");
+  return;
   std::cout << "eat" << std::endl;
 }

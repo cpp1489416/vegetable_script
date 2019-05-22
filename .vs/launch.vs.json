@@ -1,0 +1,19 @@
+{
+  "version": "0.2.1",
+  "defaults": {},
+  "configurations": [
+    {
+      "type": "dll",
+      "exe": "",
+      "project": "CMakeLists.txt",
+      "projectTarget": "vegetable-script-core.dll (dist\\lib\\vegetable-script-core.dll)",
+      "name": "vegetable-script-core.dll (dist\\lib\\vegetable-script-core.dll)"
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "vegetable-script-test.exe (dist\\bin\\vegetable-script-test.exe)",
+      "name": "vegetable-script-test.exe (dist\\bin\\vegetable-script-test.exe)"
+    }
+  ]
+}

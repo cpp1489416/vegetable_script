@@ -54,6 +54,7 @@ Lexer::Result::Ptr Lexer::MoveNext() {
 Lexer::Result::Ptr Lexer::LookCurrent() {
   if (results_.size() == 0) {
     Epoch();
+	std::cout << "start'";
   }
   return results_.front();
 }
@@ -65,7 +66,7 @@ Lexer::Result::Ptr Lexer::LookAhead(int more) {
   if (results_.size() >= more + 1) {
     return results_[more];
   }
-  int times = 1 + more - results_.size();
+  size_t times = 1 + more - results_.size();
   while (times--) {
     Epoch();
   }
