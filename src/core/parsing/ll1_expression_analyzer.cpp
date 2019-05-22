@@ -27,45 +27,28 @@ Expression::Ptr LL1ExpressionAnalyzer::ParseExpression(
 
 Expression::Ptr LL1ExpressionAnalyzer::ParsePlusExpression(
     LL1ExpressionAnalyzer::Error::List* errors) {
-  auto left = ParseMultiplyExpression(errors);
-  auto token = lexer_->LookCurrent()->token;
-  if (token->Match({
-      Token::Type::kOperatorPlus, Token::Type::kOperatorMinus})) {
-    auto node = std::make_shared<CalculateExpression>();
-    node->left_expression = left;
-    node->operatorr = (
-        token->type == Token::Type::kOperatorPlus ?
-        CalculateExpression::Operator::kPlus :
-        CalculateExpression::Operator::kMinus);
-    node->right_expression = ParsePlusExpression(errors);
-    return node;
-  } else {
-    return left;
-  }
+  return ParseBinaryExpression(
+      &Self::ParseMultiplyExpression, {
+          Token::Type::kOperatorPlus,
+          Token::Type::kOperatorMinus
+      }, {
+          BinaryExpression::Operator::kPlus,
+          BinaryExpression::Operator::kMinus
+      },
+      errors);
 }
 
 Expression::Ptr LL1ExpressionAnalyzer::ParseMultiplyExpression(
     LL1ExpressionAnalyzer::Error::List* errors) {
-  auto left = ParseMultiplyExpression(errors);
-  auto token = lexer_->LookCurrent()->token;
-  if (token->Match({
-      Token::Type::kOperatorMultiply, Token::Type::kOperatorDivide})) {
-    auto node = std::make_shared<CalculateExpression>();
-    node->left_expression = left;
-    node->operatorr = (
-        token->type == Token::Type::kOperatorMultiply?
-        CalculateExpression::Operator::kMultiply :
-        CalculateExpression::Operator::kDivide);
-    node->right_expression = ParseMultiplyExpression(errors);
-    return node;
-  } else {
-    return left;
-  }
-}
-
-Expression::Ptr LL1ExpressionAnalyzer::ParseNegativeExpression(
-    LL1ExpressionAnalyzer::Error::List* errors) {
-  
+  return ParseBinaryExpression(
+      &Self::ParseMultiplyExpression, {
+          Token::Type::kOperatorMultiply,
+          Token::Type::kOperatorDivide
+      }, {
+          BinaryExpression::Operator::kMultiply,
+          BinaryExpression::Operator::kDivide
+      },
+      errors);
 }
 
 Expression::Ptr LL1ExpressionAnalyzer::ParseBinaryExpression(
@@ -89,6 +72,10 @@ Expression::Ptr LL1ExpressionAnalyzer::ParseBinaryExpression(
     }
   }
   return left_expression;
+}
+
+Expression::Ptr LL1ExpressionAnalyzer::ParseNegativeExpression(
+    LL1ExpressionAnalyzer::Error::List* errors) {
 }
 
 Expression::Ptr LL1ExpressionAnalyzer::ParseUnaryExpression(
