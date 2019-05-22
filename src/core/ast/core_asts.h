@@ -17,9 +17,13 @@ struct Expression;
 struct EmptyExpression;
 struct LHSExpression;
 struct VariableExpression;
-struct LiteralExpression;
+struct IdentifierExpression;
+struct StringExpression;
 struct NumberExpression;
+struct IntegerExpression;
+struct FloatExpression;
 struct FunctionExpression;
+struct UnaryExpression;
 struct BinaryExpression;
 struct CompareExpression;
 struct AssignExpression;
@@ -58,15 +62,23 @@ struct BuiltInTypeSymbol;
 
 struct IVisitor {
  public:
+  virtual void Visit(IdentifierExpression* node) {}
+
+  virtual void Visit(StringExpression* node) {}
+
   virtual void Visit(NumberExpression* node) {}
+
+  virtual void Visit(IntegerExpression* node) {}
+
+  virtual void Visit(FloatExpression* node) {}
 
   virtual void Visit(EmptyExpression* node) {}
 
   virtual void Visit(VariableExpression* node) {}
 
-  virtual void Visit(BinaryExpression* node) {}
+  virtual void Visit(UnaryExpression* node) {}
 
-  virtual void Visit(CompareExpression* node) {}
+  virtual void Visit(BinaryExpression* node) {}
 
   virtual void Visit(AssignExpression* node) {}
 
@@ -116,6 +128,24 @@ struct Expression : public Ast {
   using WeakPtr = std::weak_ptr<Expression>;
 };
 
+struct IdentifierExpression : public Expression {
+  using Ptr = std::shared_ptr<IdentifierExpression>;
+  using WeakPtr = std::weak_ptr<IdentifierExpression>;
+
+  virtual void Visit(IVisitor* visitor) overrride { visitor->Visit(this); }
+
+  std::string value;
+}
+
+struct StringExpression : public Expression {
+  using Ptr = std::shared_ptr<StringExpression>;
+  using WeakPtr = std::weak_ptr<StringExpression>;
+
+  void Accept(IVisitor* visitor) override { visitor->Visit(this); }
+
+  std::string value;
+}
+
 struct EmptyExpression : public Expression {
   using Ptr = std::shared_ptr<EmptyExpression>;
   using WeakPtr = std::weak_ptr<EmptyExpression>;
@@ -128,8 +158,23 @@ struct NumberExpression : public Expression {
   using WeakPtr = std::weak_ptr<NumberExpression>;
 
   void Accept(IVisitor* visitor) override { visitor->Visit(this); }
+};
 
-  Token token;
+struct IntegerExpression: public NumberExpression {
+  using Ptr = std::shared_ptr<IntegerExpression>;
+  using WeakPtr = std::weak_ptr<IntegerExpression>;
+
+  void Accept(IVisitor* visitor) override { visitor->Visit(this); }
+
+  int value;
+};
+
+struct FloatExpression: public NumberExpression {
+  using Ptr = std::shared_ptr<FloatExpression>;
+  using WeakPtr = std::weak_ptr<FloatExpression>;
+
+  void Accept(IVisitor* visitor) override { visitor->Visit(this); }
+
   double value;
 };
 
@@ -149,6 +194,19 @@ struct FunctionExpression : public Expression {
   ArgumentList argument_list;
 };
 
+struct UnaryExpression: public Expression {
+  XC_MULTI_ENUM(
+    Operator,
+    kPositive,
+    kNegative
+  )
+
+  void Accept(IVisitor* visitor) override { visitor->Visit(this); }
+
+  Operator operatorr;
+  Expression::Ptr child_expression;
+};
+
 struct BinaryExpression : public Expression {
   XC_MULTI_ENUM(
     Operator,
@@ -156,6 +214,9 @@ struct BinaryExpression : public Expression {
     kMinus,  // -
     kMultiply,  // *
     kDivide,  // /
+    kGreater,  // >
+    kLesser,  // <
+    kEqual
   )
 
   void Accept(IVisitor* visitor) override { visitor->Visit(this); }
@@ -163,21 +224,6 @@ struct BinaryExpression : public Expression {
   Expression::Ptr left_expression;
   Operator operatorr;
   Expression::Ptr right_expression;
-};
-
-struct CompareExpression : public Expression {
-  enum struct Operator {
-    kGreater,
-    kLesser,
-  };
-
-  void Accept(IVisitor* visitor) override {
-    visitor->Visit(this);
-  }
-
-  Pointer<Expression> left_expression;
-  Operator opeartor_;
-  Pointer<Expression> right_expression;
 };
 
 struct AssignExpression : public Expression {

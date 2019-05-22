@@ -17,6 +17,10 @@ class StringUtil {
                                  char source);
 
   static std::string Trim(const std::string& string);
+
+  static int ToInt(const std::string& string);
+
+  static double ToDouble(const std::string& string);
 };
 
 }  // namespace xc

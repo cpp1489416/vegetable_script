@@ -293,9 +293,9 @@ void Lexer::EpochElse(int status, std::string* string, int row, int column) {
         } else {
           Token::Type type = Token::Type::kOperator;
           if (*string == "+") {
-            type << Token::Type::kOperatorPlus;
+            type << Token::Type::kOperatorPositive;
           } else {
-            type << Token::Type::kOperatorMinus;
+            type << Token::Type::kOperatorNegative;
           }
           PushBackToken(
               *string,

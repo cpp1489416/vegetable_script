@@ -7,17 +7,17 @@ plus_expression ::=
     multiply_expression "-" plus_expression,
     multiply_expression;
 
-multiply_expression::= 
+multiply_expression ::= 
     negative_expression "*" multiply_expression,  
     negative_expression "/" multiply_expression, 
     negative_expression;
 
-negative_expression ::=
+unary_expression ::=
     "+" unary_expression,
     "-" unary_expression,
     unary_expression;
 
-unary_expression ::= 
+single_expression ::= 
     "(" expression ")", 
     number_token, 
     string_token, 

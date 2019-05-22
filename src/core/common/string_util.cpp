@@ -2,6 +2,7 @@
 #include "./string_util.h"
 #include "./unit_test.h"
 
+#include <cstdlib>
 #include <iostream>
 
 namespace xc {
@@ -59,6 +60,16 @@ std::string StringUtil::Trim(const std::string& string) {
     }
   }
   return string.substr(start_index, end_index - start_index);
+}
+
+int StringUtil::ToInt(const std::string& string) {
+  using namespace std;  // NOLINT
+  return atoi(string.c_str());
+}
+
+double StringUtil::ToDouble(const std::string& string) {
+  using namespace std;  // NOLINT
+  return atof(string.c_str());
 }
 
 }  // namespace xc

@@ -25,11 +25,12 @@ XC_MULTI_ENUM(
   kNumber, kNumberFloat, kNumberInteger,
 
   kOperator,
+  kOperatorPositive, kOperatorNegative,
   kOperatorPlus, kOperatorMinus,
   kOperatorMultiply, kOperatorDivide,
   kOperatorNegative,
   kOperatorAnd, kOperatorOr,
-  kOperatorGreater, kOperatorLess,
+  kOperatorGreater, kOperatorLesser,
   kOperatorShiftLeft, kOperatorShitRight,
 
   kComment,
@@ -58,7 +59,9 @@ class Token {
 
   std::string ToEscapedString() const;
 
-  bool Match(std::initializer_list<Type::Type_> types);
+  bool MatchType(std::initializer_list<Type::Type_> types);
+
+  bool MatchString(const std::string& string);
 
   std::string string;
 

@@ -53,8 +53,6 @@ class LL1ExpressionAnalyzer {
 
   Expression::Ptr ParseMultiplyExpression(Error::List* errors);
 
-  Expression::Ptr ParseNegativeExpression(Error::List* errors);
-
   Expression::Ptr ParseBinaryExpression(
       ParsingFunction child_function,
       std::initializer_list<Token::Type> token_types,
@@ -62,6 +60,8 @@ class LL1ExpressionAnalyzer {
       Error::List* errors);
 
   Expression::Ptr ParseUnaryExpression(Error::List* errors);
+
+  Expression::Ptr ParseSingleExpression(Error::List* errors);
 
   Lexer::Ptr lexer_;
 };

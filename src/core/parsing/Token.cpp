@@ -14,13 +14,17 @@ std::string Token::ToEscapedString() const {
   return "";
 }
 
-bool Token::Match(std::initializer_list<Type::Type_> types) {
+bool Token::MatchType(std::initializer_list<Type::Type_> types) {
   for (auto t : types) {
     if (type != t) {
       return false;
     }
   }
   return true;
+}
+
+bool Token::MatchString(const std::string& string) {
+  return this->string == string;
 }
 
 }  // namespace vegetable_script
