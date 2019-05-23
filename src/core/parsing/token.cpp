@@ -1,4 +1,5 @@
 #include "token.h"
+#include "../common/all.h"
 
 namespace vegetable_script {
 
@@ -11,7 +12,8 @@ std::string Token::ToString() const {
 }
 
 std::string Token::ToEscapedString() const {
-  return "";
+  return "Token(\"" + xc::StringUtil::Escape(string) + "\", "
+      + type.ToString() + ")";
 }
 
 bool Token::MatchType(std::initializer_list<Type::Type_> types) {

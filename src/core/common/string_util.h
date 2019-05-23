@@ -21,6 +21,8 @@ class StringUtil {
   static int ToInt(const std::string& string);
 
   static double ToDouble(const std::string& string);
+
+  static std::string Escape(const std::string& string);
 };
 
 }  // namespace xc

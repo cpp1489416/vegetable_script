@@ -5,6 +5,7 @@
 #include <string>
 #include <memory>
 #include <initializer_list>
+#include <deque>
 
 namespace vegetable_script {
 
@@ -25,10 +26,8 @@ XC_MULTI_ENUM(
   kNumber, kNumberFloat, kNumberInteger,
 
   kOperator,
-  kOperatorPositive, kOperatorNegative,
-  kOperatorPlus, kOperatorMinus,
+  kOperatorPlusOrPositive, kOperatorMinusOrNegative,
   kOperatorMultiply, kOperatorDivide,
-  kOperatorNegative,
   kOperatorAnd, kOperatorOr,
   kOperatorGreater, kOperatorLesser,
   kOperatorShiftLeft, kOperatorShitRight,
@@ -51,6 +50,8 @@ class Token {
   using Pointer = std::shared_ptr<Token>;
 
   using Ptr = Pointer;
+
+  using PtrDeque = std::deque<Ptr>;
 
   explicit Token(std::string string = "", Type type = Type::kNone,
     int row = -1, int column = -1);

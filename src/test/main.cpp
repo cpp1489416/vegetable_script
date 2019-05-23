@@ -47,7 +47,7 @@ XC_TEST_CASE(ENUM, false) {
 XC_TEST_CASE(ARFDS, false) {
 }
 
-XC_TEST_CASE(TokenNull, true) {
+XC_TEST_CASE(TokenNull, false) {
   std::shared_ptr<int> i = nullptr;
   if (i) {
     std::cout << "not null";

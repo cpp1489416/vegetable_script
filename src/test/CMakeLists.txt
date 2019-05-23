@@ -2,7 +2,11 @@
 project(vegetable-script-test)
 add_definitions(-std=c++11)
 include_directories(${PROJECT_SOURCE_DIR}/../core)
-add_executable(vegetable-script-test main.cpp test_lexer.cpp)
+add_executable(vegetable-script-test
+    main.cpp
+    test_lexer.cpp
+    test_file.cpp)
+
 target_link_libraries(vegetable-script-test vegetable-script-core)
 
 

@@ -65,10 +65,19 @@
       return *this;                                                   \
     }                                                                 \
                                                                       \
+    bool contains(const ENUM_NAME& rhs) const {                       \
+      for (auto itr = rhs.types_.cbegin();                            \
+          itr != rhs.types_.cend(); ++itr) {                          \
+        if (types_.count(*itr) == 0) {                                \
+          return false;                                               \
+        }                                                             \
+      }                                                               \
+      return true;                                                    \
+    }                                                                 \
+                                                                      \
     static std::string TypeToString(Type_ type) {                     \
       auto type_strings =                                             \
         std::get<0>(GenerateTypeStringsAndStringTypes());             \
-        std::cout << "getted type: " << (int)type << std::endl;             \
       return type_strings->at(type);                                  \
     }                                                                 \
                                                                       \
@@ -103,7 +112,7 @@
       static std::map<Type_, std::string> type_strings;               \
       static std::map<std::string, Type_> string_types;               \
       if (type_strings.size() == 0) {                                 \
-		type_strings[k##ENUM_NAME##Default] = std::string() +         \
+        type_strings[k##ENUM_NAME##Default] = std::string() +         \
             "k" + #ENUM_NAME + "Default";                             \
         std::string source = XC_MULTI_ENUM_STRINGIFY((__VA_ARGS__));  \
         int start_index = 1;                                          \

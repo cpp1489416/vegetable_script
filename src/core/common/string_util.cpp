@@ -4,6 +4,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <sstream>
 
 namespace xc {
 
@@ -70,6 +71,34 @@ int StringUtil::ToInt(const std::string& string) {
 double StringUtil::ToDouble(const std::string& string) {
   using namespace std;  // NOLINT
   return atof(string.c_str());
+}
+
+std::string StringUtil::Escape(const std::string& string) {
+  std::stringstream string_stream;
+  for (auto c : string) {
+    switch (c) {
+      case '\t': {
+        string_stream << "\\t";
+        break;
+      }
+      case '\r': {
+        string_stream << "\\r";
+        break;
+      }
+      case '\n': {
+        string_stream << "\\n";
+        break;
+      }
+      case '"': {
+        string_stream << "\\\"";
+        break;
+      }
+      default: {
+        string_stream << c;
+      }
+    }
+  }
+  return string_stream.str();
 }
 
 }  // namespace xc

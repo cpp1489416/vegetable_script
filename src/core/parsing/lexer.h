@@ -4,63 +4,74 @@
 #include <string>
 #include <deque>
 #include <memory>
+#include <vector>
 #include "./source_provider.h"
 #include "./token.h"
 #include "../common/all.h"
 
 namespace vegetable_script {
 
-namespace detail {
+namespace details {
 
 struct LexerResultError {
   using Ptr = std::shared_ptr<LexerResultError>;
+  using List = std::deque<LexerResultError>;
 
+  std::string status;
   int row;
   int column;
 };
 
-struct LexerResult {
-  using Ptr = std::shared_ptr<LexerResult>;
-  using Error = LexerResultError;
-  using List = std::deque<Ptr>;
-
-  Token::Ptr token;
-  Error::Ptr error;
-};
-
-}  // namespace detail
+}  // namespace details
 
 class Lexer {
  public:
   using Ptr = std::shared_ptr<Lexer>;
-  using Result = detail::LexerResult;
+  using Error = details::LexerResultError;
 
-  explicit Lexer(SourceProvider::Ptr source_provider);
+  explicit Lexer(
+      SourceProvider::Ptr source_provider,
+      bool on_error_skip = true);
 
   bool HasNext();
 
-  Result::Ptr MoveNext();
+  void MoveNext();
 
-  Result::Ptr LookCurrent();
+  Token::Ptr LookCurrent(Error::List* errors);
 
-  Result::Ptr LookAhead(int more = 1);
+  Token::Ptr LookCurrentWithoutComments(Error::List* errors);
+
+  Token::Ptr LookAhead(Error::List* errors);
+
+  Token::Ptr LookAheadWithoutComments(Error::List* errors);
+
+  Token::Ptr LookAhead(int more, Error::List* errors);
+
+  Token::Ptr LookAheadWithoutComments(int more, Error::List* errors);
+
+  bool on_error_skip() const { return on_error_skip_; }
+
+  bool set_on_error_skip(bool value) { on_error_skip_ = value; }
 
  private:
-  void Epoch();
+  void Epoch(Error::List* errors);
 
-  void Epoch0();
+  void Epoch0(Error::List* errors);
 
-  void EpochElse(int status, std::string* string, int row, int column);
+  void EpochElse(int status, int row, int column,
+      std::string* string, Error::List* errors);
 
   void SkipBlanks();
 
   void PushBackToken(const std::string& string,
       const Token::Type& type, int row, int column);
 
-  void PushBackError(int row, int column);
+  void PushBackError(const std::string& status, int row, int column,
+      Error::List* errors);
 
   SourceProvider::Ptr source_provider_;
-  Result::List results_;
+  bool on_error_skip_;
+  Token::PtrDeque tokens_;
 };
 
 }  // namespace vegetable_script

@@ -1,7 +1,35 @@
-#include "ASTStringer.h"
+#include "ast_stringer.h"
 
-namespace vetetable_script {
+namespace vegetable_script {
 
+void AstStringer::Visit(FloatExpression* node) {
+  stream_ << node->value;
+}
+
+void AstStringer::Visit(IntegerExpression* node) {
+  stream_ << node->value;
+}
+
+void AstStringer::Visit(IdentifierExpression* node) {
+  stream_ << node->value;
+}
+
+void AstStringer::Visit(UnaryExpression* node) {
+  stream_ << node->operatorr.ToString();
+  node->child_expression->Accept(this);
+}
+
+void AstStringer::Visit(BinaryExpression* node) {
+  stream_ << "(";
+  node->left_expression->Accept(this);
+
+  stream_ << " " << node->operatorr.ToString() << " ";
+
+  node->right_expression->Accept(this);
+  stream_ << ")";
+}
+
+/*
 void ASTStringer::Visit(NumberExpression* node) {
     mStream << node->mValue;
 }
@@ -142,4 +170,5 @@ void ASTStringer::Visit(Program* node) {
 void ASTStringer::Visit(FunctionSymbol *node) {
 }
 
-}
+*/
+}  // namespace vegetable_script

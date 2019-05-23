@@ -6,11 +6,21 @@
 
 namespace vegetable_script {
 
+namespace details {
+
+}
+
 class SourceProvider {
  public:
+  enum class EnterType {
+    kN, kRN, kR, kNotEnter,
+  };
+
   using Ptr = std::shared_ptr<SourceProvider>;
 
   explicit SourceProvider(const std::string& source);
+
+  SourceProvider(const SourceProvider& rhs);
 
   char LookCurrent();
 
@@ -24,9 +34,11 @@ class SourceProvider {
 
   bool HasNext();
 
-  char MoveNext();
+  void MoveNext();
 
  private:
+  EnterType GetEnterType();
+
   std::string source_;
 
   int position_;

@@ -3,17 +3,18 @@
 
 #include <initializer_list>
 #include <memory>
+#include <deque>
 #include "./lexer.h"
 #include "../ast/core_asts.h"
 
 namespace vegetable_script {
 
-namespace detail {
-struct LL1ExpressionAnalyzerResultError {
-  using Ptr = std::shared_ptr<LL1ExpressionAnalyzerResultError>;
-  using List = std::vector<Ptr>;
+namespace details {
+struct LL1ExpressionAnalyzerError {
+  using Ptr = std::shared_ptr<LL1ExpressionAnalyzerError>;
+  using List = std::deque<LL1ExpressionAnalyzerError>;
 
-  LL1ExpressionAnalyzerResultError(std::string status, int row, int column):
+  LL1ExpressionAnalyzerError(std::string status, int row, int column):
   status(status), row(row), column(column) {
   }
 
@@ -22,48 +23,43 @@ struct LL1ExpressionAnalyzerResultError {
   int column;
 };
 
-struct LL1ExpressionAnalyzerResult {
-  using Ptr = std::shared_ptr<LL1ExpressionAnalyzerResult>;
-  using Error = LL1ExpressionAnalyzerResultError;
-
-  Expression::Ptr expression;
-  Error::Ptr error;
-};
-}  // namespace detail
+}  // namespace details
 
 class LL1ExpressionAnalyzer {
  public:
   using Self = LL1ExpressionAnalyzer;
-  using Result = detail::LL1ExpressionAnalyzerResult;
-  using Error = Result::Error;
+  using Error = details::LL1ExpressionAnalyzerError;
 
-  explicit LL1ExpressionAnalyzer(Lexer::Ptr lexer);
+  explicit LL1ExpressionAnalyzer(bool on_error_skip = true);
 
-  Result::Ptr Parse();
+  Expression::Ptr Parse(Lexer* lexer, Error::List* errors);
+
+  bool on_error_skip() const { return on_error_skip_; }
+
+  void set_on_error_skip(bool on_error_skip) { on_error_skip_ = on_error_skip; }
 
  private:
   using ParsingFunction =
-      Expression::Ptr(Self::*)(Error::List* errors);
+      Expression::Ptr(Self::*)(Lexer* lexer, Error::List* errors);
 
-  Expression::Ptr ParseExpression(Error::List* errors);
+  Expression::Ptr ParseExpression(Lexer* lexer, Error::List* errors);
 
-  Expression::Ptr ParsePlusExpression(Error::List* errors);
+  Expression::Ptr ParsePlusExpression(Lexer* lexer, Error::List* errors);
 
-  Expression::Ptr ParsePlusExpression(Error::List* errors);
-
-  Expression::Ptr ParseMultiplyExpression(Error::List* errors);
+  Expression::Ptr ParseMultiplyExpression(Lexer* lexer, Error::List* errors);
 
   Expression::Ptr ParseBinaryExpression(
       ParsingFunction child_function,
       std::initializer_list<Token::Type> token_types,
       std::initializer_list<BinaryExpression::Operator> operator_types,
+      Lexer* lexer,
       Error::List* errors);
 
-  Expression::Ptr ParseUnaryExpression(Error::List* errors);
+  Expression::Ptr ParseUnaryExpression(Lexer* lexer, Error::List* errors);
 
-  Expression::Ptr ParseSingleExpression(Error::List* errors);
+  Expression::Ptr ParseSingleExpression(Lexer* lexer, Error::List* errors);
 
-  Lexer::Ptr lexer_;
+  bool on_error_skip_;
 };
 
 }  // namespace vegetable_script

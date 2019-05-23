@@ -8,46 +8,39 @@
 #include <tuple>
 #include <string>
 
-XC_TEST_CASE(LEXER, true) {
-  std::cout << "moving";
-  using namespace vegetable_script;  // NOLINT
-  const char* source_code = R"DEF(
-    ;
-    ;
-    ;
-    1
-    2
-    44
-    3242342
-    re34234234324
-    +
-    -
-    *
-    * /
-    -.342423
-    34324.33
-    +3
-    /*
-    fdsaf
-    sa
-    fd
-    sad*/
-    //
-    f | |||& && & &
-    "stri\dng"
-    ()
-  )DEF";
-  std::cout << "moving";
-  auto source_provider = std::make_shared<SourceProvider>(source_code);
-  Lexer lexer = Lexer(source_provider);
-  std::cout << "moving";
-  while (lexer.HasNext()) {
-	  auto result = lexer.LookCurrent();
 
-	  std::cout << result->token->ToString() << std::endl;
-	  lexer.MoveNext();
+XC_TEST_CASE(LEXER, true) {
+  std::cout << __FILE__ << std::endl;
+  using namespace vegetable_script;  // NOLINT
+  const char* source_codes[] = {
+    R"DEF(
+    "fdsfa"
+    a
+    //dfafds
+    /*dd
+    d (3+3*3_)
+
+    //d*/
+    "ddddd\""
+*)DEF"
+  };
+
+  for (int i = 0; i < 1; ++i) {
+    std::cout << "start test lexer of " << i << std::endl;
+    std::string source = source_codes[i];
+    auto source_provider = std::make_shared<SourceProvider>(source);
+    Lexer lexer = Lexer(source_provider, true);
+    while (lexer.HasNext()) {
+      auto errors = Lexer::Error::List();
+      auto token = lexer.LookCurrent(&errors);
+      while (!errors.empty()) {
+        Lexer::Error error = errors.front();
+        errors.pop_front();
+        std::cout << "error: " << error.status << ", at(" << error.row
+            << ", " << error.column << ")\n";
+      }
+      lexer.MoveNext();
+      std::cout << "next token:" << token->ToEscapedString() << std::endl;
+    }
   }
-  system("Pause");
-  return;
-  std::cout << "eat" << std::endl;
 }

@@ -25,57 +25,103 @@ bool IsBlank(char c) {
 
 namespace vegetable_script {
 
-Lexer::Lexer(SourceProvider::Ptr source_provider):
-  source_provider_(source_provider) {
+Lexer::Lexer(SourceProvider::Ptr source_provider, bool on_error_skip):
+  source_provider_(source_provider), on_error_skip_(on_error_skip) {
 }
 
 bool Lexer::HasNext() {
-  if (results_.size() > 1) {
+  if (tokens_.size() > 1) {
     return true;
   }
-  if (results_.size() == 0) {
-    Epoch();
+  if (tokens_.size() == 0) {
+    return true;
   }
-  if (results_.front()->token->type == Token::Type::kEnd) {
+  if (tokens_.front()->type == Token::Type::kEnd) {
     return false;
   }
   return true;
 }
 
-Lexer::Result::Ptr Lexer::MoveNext() {
-  if (results_.size() == 0) {
-    LookCurrent();
+void Lexer::MoveNext() {
+  if (tokens_.size() == 0) {
+    return;
   }
-  results_.pop_front();
-  Epoch();
-  return LookCurrent();
+  if (tokens_.front()->type == Token::Type::kEnd) {
+    return;
+  }
+  tokens_.pop_front();
 }
 
-Lexer::Result::Ptr Lexer::LookCurrent() {
-  if (results_.size() == 0) {
-    Epoch();
-	std::cout << "start'";
+Token::Ptr Lexer::LookCurrent(Lexer::Error::List* errors) {
+  if (tokens_.size() == 0) {
+    Epoch(errors);
+    return tokens_.front();
+  } else {
+    return tokens_.front();
   }
-  return results_.front();
 }
 
-Lexer::Result::Ptr Lexer::LookAhead(int more) {
+Token::Ptr Lexer::LookCurrentWithoutComments(Lexer::Error::List* errors) {
+  if (tokens_.size() == 0) {
+    Epoch(errors);
+  }
+  while (tokens_.front()->type == Token::Type::kComment) {
+    tokens_.pop_front();
+    if (tokens_.size() == 0) {
+      Epoch(errors);
+    }
+  }
+  return tokens_.front();
+}
+
+Token::Ptr Lexer::LookAhead(Lexer::Error::List* errors) {
+  return LookAhead(1, errors);
+}
+
+Token::Ptr Lexer::LookAheadWithoutComments(Lexer::Error::List* errors) {
+  return LookAheadWithoutComments(1, errors);
+}
+
+Token::Ptr Lexer::LookAhead(int more, Lexer::Error::List* errors) {
   if (more <= 0) {
-    return LookCurrent();
+    return LookCurrent(errors);
   }
-  if (results_.size() >= more + 1) {
-    return results_[more];
+  if (tokens_.size() >= more + 1) {
+    return tokens_[more];
   }
-  size_t times = 1 + more - results_.size();
+  size_t times = 1 + more - tokens_.size();
   while (times--) {
-    Epoch();
+    Epoch(errors);
   }
-  return results_.back();
+  return tokens_.back();
 }
 
-void Lexer::Epoch() {
-  if (results_.size() != 0 &&
-      results_.front()->token->type == Token::Type::kEnd) {
+Token::Ptr Lexer::LookAheadWithoutComments(int more,
+    Lexer::Error::List* errors) {
+  int index = 0;
+  ++more;
+  while (true) {
+    if (tokens_.size() <= index) {
+      Epoch(errors);
+    }
+    auto token = tokens_[index];
+    ++index;
+    if (token->type == Token::Type::kComment) {
+      continue;
+    } else if (token->type == Token::Type::kEnd) {
+      return token;
+    } else {
+      --more;
+      if (more == 0) {
+        return token;
+      }
+    }
+  }
+}
+
+void Lexer::Epoch(Lexer::Error::List* errors) {
+  if (tokens_.size() != 0 &&
+      tokens_.front()->type == Token::Type::kEnd) {
     return;
   }
   SkipBlanks();
@@ -84,10 +130,10 @@ void Lexer::Epoch() {
         source_provider_->LookRow(), source_provider_->LookColumn());
     return;
   }
-  Epoch0();
+  Epoch0(errors);
 }
 
-void Lexer::Epoch0() {
+void Lexer::Epoch0(Lexer::Error::List* errors) {
   int row = source_provider_->LookRow();
   int column = source_provider_->LookColumn();
   std::string string;
@@ -173,7 +219,7 @@ void Lexer::Epoch0() {
           "<",
           Token::Type() <<
               Token::Type::kOperator <<
-              Token::Type::kOperatorLess,
+              Token::Type::kOperatorLesser,
           row,
           column);
       return;
@@ -186,8 +232,11 @@ void Lexer::Epoch0() {
           row,
           column);
       return;
+    case '\0':
+      PushBackToken("", Token::Type::kEnd, row, column);
+      return;
     case '.':
-      status = 3;
+      status = 15;
       break;
     case '+':
     case '-':
@@ -204,6 +253,7 @@ void Lexer::Epoch0() {
       break;
     case '"':
       status = 13;
+      string.pop_back();
       break;
     default: {
       if (IsIdentifier(c)) {
@@ -211,22 +261,35 @@ void Lexer::Epoch0() {
       } else if (IsNumber(c)) {
         status = 2;
       } else {
-        PushBackError(row, column);
-        return;
+        PushBackError(
+            std::string() + "invalid char'" + c + "'",
+            row, column, errors);
       }
       break;
     }
   }
-  EpochElse(status, &string, row, column);
+  EpochElse(status, row, column, &string, errors);
 }
 
-void Lexer::EpochElse(int status, std::string* string, int row, int column) {
+void Lexer::EpochElse(int status, int row, int column,
+    std::string* string, Lexer::Error::List* errors) {
+  auto push_back_comment_not_end_error = [&]() {
+    PushBackError(
+        "a string must have end double quotation mark "
+        "or in a single line",
+        source_provider_->LookRow(),
+        source_provider_->LookColumn(),
+        errors);
+  };
+  auto push_back_string_not_end_error = [&]() {
+    PushBackError(
+        "a multi-line comment must have its end mark '*/'",
+        source_provider_->LookRow(),
+        source_provider_->LookColumn(),
+        errors);
+  };
   while (true) {
     char c = source_provider_->LookCurrent();
-    if (c == '\0') {
-      PushBackError(row, column);
-      return;
-    }
     switch (status) {
       case 0: {
         break;
@@ -293,9 +356,9 @@ void Lexer::EpochElse(int status, std::string* string, int row, int column) {
         } else {
           Token::Type type = Token::Type::kOperator;
           if (*string == "+") {
-            type << Token::Type::kOperatorPositive;
+            type << Token::Type::kOperatorPlusOrPositive;
           } else {
-            type << Token::Type::kOperatorNegative;
+            type << Token::Type::kOperatorMinusOrNegative;
           }
           PushBackToken(
               *string,
@@ -381,8 +444,7 @@ void Lexer::EpochElse(int status, std::string* string, int row, int column) {
       }
       case 10: {
         char c = source_provider_->LookCurrent();
-        if (c == '\n') {
-          *string += c;
+        if (c == '\n' || c == '\0') {
           source_provider_->MoveNext();
           PushBackToken(
               *string,
@@ -402,9 +464,12 @@ void Lexer::EpochElse(int status, std::string* string, int row, int column) {
           *string += c;
           source_provider_->MoveNext();
           status = 12;
-        } else {
+        } else if (c != '\0') {
           *string += c;
           source_provider_->MoveNext();
+        } else {
+          push_back_comment_not_end_error();
+          return;
         }
         break;
       }
@@ -419,17 +484,19 @@ void Lexer::EpochElse(int status, std::string* string, int row, int column) {
               row,
               column);
           return;
-        } else {
+        } else if (c != '\0') {
           *string += c;
           source_provider_->MoveNext();
           status = 11;
+        } else {
+          push_back_string_not_end_error();
+          return;
         }
         break;
       }
       case 13: {
         char c = source_provider_->LookCurrent();
         if (c == '"') {
-          *string += c;
           source_provider_->MoveNext();
           PushBackToken(
               *string,
@@ -440,25 +507,44 @@ void Lexer::EpochElse(int status, std::string* string, int row, int column) {
         } else if (c == '\\') {
           source_provider_->MoveNext();
           status = 14;
-        } else {
+        } else if (c != '\n' && c != '\0') {
           *string += c;
           source_provider_->MoveNext();
+        } else {
+          push_back_comment_not_end_error();
+          return;
         }
         break;
       }
       case 14: {
         char c = source_provider_->LookCurrent();
-        *string += c;
-        source_provider_->MoveNext();
-        status = 13;
+        if (c != '\0') {
+          *string += c;
+          source_provider_->MoveNext();
+          status = 13;
+        } else {
+          push_back_string_not_end_error();
+          return;
+        }
         break;
+      }
+      case 15: {
+        char c = source_provider_->LookCurrent();
+        if (IsNumber(c)) {
+          *string += c;
+          source_provider_->MoveNext();
+          status = 3;
+        } else {
+          push_back_comment_not_end_error();
+          return;
+        }
       }
       default: {
         break;
       }
     }
   }
-}
+}  // NOLINT
 
 void Lexer::SkipBlanks() {
   while (source_provider_->HasNext()) {
@@ -473,19 +559,19 @@ void Lexer::SkipBlanks() {
 
 void Lexer::PushBackToken(const std::string& string,
     const Token::Type& type, int row, int column) {
-  results_.push_back(Result::Ptr(new Result {
-      Token::Ptr(new Token(string, type, row, column)),
-      nullptr
-  }));
+  tokens_.push_back(std::make_shared<Token>(string, type, row, column));
 }
 
-void Lexer::PushBackError(int row, int column) {
-  results_.push_back(Result::Ptr(new Result {
-      Token::Ptr(new Token("", Token::Type::kError, row, column)),
-      Result::Error::Ptr(new Result::Error {
-          row, column
-      })
-  }));
+void Lexer::PushBackError(const std::string& status, int row, int column,
+    Lexer::Error::List* errors) {
+  errors->push_back(Error {
+    status, row, column});
+  if (on_error_skip()) {
+    Epoch(errors);
+  } else {
+    tokens_.push_back(
+        std::make_shared<Token>("", Token::Type::kEnd, row, column));
+  }
 }
 
 }  // namespace vegetable_script

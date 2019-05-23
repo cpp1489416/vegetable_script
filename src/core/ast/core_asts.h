@@ -132,10 +132,10 @@ struct IdentifierExpression : public Expression {
   using Ptr = std::shared_ptr<IdentifierExpression>;
   using WeakPtr = std::weak_ptr<IdentifierExpression>;
 
-  virtual void Visit(IVisitor* visitor) overrride { visitor->Visit(this); }
+  void Accept(IVisitor* visitor) override { visitor->Visit(this); }
 
   std::string value;
-}
+};
 
 struct StringExpression : public Expression {
   using Ptr = std::shared_ptr<StringExpression>;
@@ -144,7 +144,7 @@ struct StringExpression : public Expression {
   void Accept(IVisitor* visitor) override { visitor->Visit(this); }
 
   std::string value;
-}
+};
 
 struct EmptyExpression : public Expression {
   using Ptr = std::shared_ptr<EmptyExpression>;
