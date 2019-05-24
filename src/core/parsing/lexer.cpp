@@ -25,18 +25,15 @@ bool IsBlank(char c) {
 
 namespace vegetable_script {
 
-Lexer::Lexer(SourceProvider::Ptr source_provider, bool on_error_skip):
-  source_provider_(source_provider), on_error_skip_(on_error_skip) {
+Lexer::Lexer(SourceProvider::Ptr source_provider):
+  source_provider_(source_provider) {
 }
 
 bool Lexer::HasNext() {
-  if (tokens_.size() > 1) {
-    return true;
-  }
   if (tokens_.size() == 0) {
     return true;
   }
-  if (tokens_.front()->type == Token::Type::kEnd) {
+  if (tokens_.front().type == Token::Type::kEnd) {
     return false;
   }
   return true;
@@ -46,94 +43,105 @@ void Lexer::MoveNext() {
   if (tokens_.size() == 0) {
     return;
   }
-  if (tokens_.front()->type == Token::Type::kEnd) {
+  if (tokens_.front().type == Token::Type::kEnd) {
     return;
   }
   tokens_.pop_front();
 }
 
-Token::Ptr Lexer::LookCurrent(Lexer::Error::List* errors) {
-  if (tokens_.size() == 0) {
-    Epoch(errors);
-    return tokens_.front();
-  } else {
-    return tokens_.front();
+bool Lexer::LookCurrent(Token* token, ParsingException* exception) {
+  if (tokens_.size() == 0 && !Epoch(exception)) {
+    return false;
   }
+  *token = tokens_.front();
+  return true;
 }
 
-Token::Ptr Lexer::LookCurrentWithoutComments(Lexer::Error::List* errors) {
-  if (tokens_.size() == 0) {
-    Epoch(errors);
+bool Lexer::LookCurrentWithoutComments(
+    Token* token, ParsingException* exception) {
+  if (tokens_.size() == 0 && !Epoch(exception)) {
+    return false;
   }
-  while (tokens_.front()->type == Token::Type::kComment) {
+  while (tokens_.front().type == Token::Type::kComment) {
     tokens_.pop_front();
-    if (tokens_.size() == 0) {
-      Epoch(errors);
+    if (tokens_.size() == 0 && !Epoch(exception)) {
+      return false;
     }
   }
-  return tokens_.front();
+  *token = tokens_.front();
+  return true;
 }
 
-Token::Ptr Lexer::LookAhead(Lexer::Error::List* errors) {
-  return LookAhead(1, errors);
+bool Lexer::LookAhead(Token* token, ParsingException* exception) {
+  return LookAhead(1, token, exception);
 }
 
-Token::Ptr Lexer::LookAheadWithoutComments(Lexer::Error::List* errors) {
-  return LookAheadWithoutComments(1, errors);
+bool Lexer::LookAheadWithoutComments(
+    Token* token, ParsingException* exception) {
+  return LookAheadWithoutComments(1, token, exception);
 }
 
-Token::Ptr Lexer::LookAhead(int more, Lexer::Error::List* errors) {
-  if (more <= 0) {
-    return LookCurrent(errors);
+bool Lexer::LookAhead(size_t more,
+    Token* token, ParsingException* exception) {
+  if (more == 0) {
+    return LookCurrent(token, exception);
   }
   if (tokens_.size() >= more + 1) {
-    return tokens_[more];
+    *token = tokens_[more];
+    return true;
   }
   size_t times = 1 + more - tokens_.size();
   while (times--) {
-    Epoch(errors);
+    if (!Epoch(exception)) {
+      return false;
+    }
   }
-  return tokens_.back();
+  *token = tokens_.back();
+  return true;
 }
 
-Token::Ptr Lexer::LookAheadWithoutComments(int more,
-    Lexer::Error::List* errors) {
-  int index = 0;
+bool Lexer::LookAheadWithoutComments(size_t more,
+    Token* token, ParsingException* exception) {
+  size_t index = 0;
   ++more;
   while (true) {
-    if (tokens_.size() <= index) {
-      Epoch(errors);
+    if (tokens_.size() <= index && !Epoch(exception)) {
+      return false;
     }
-    auto token = tokens_[index];
+    auto cur_token = tokens_[index];
     ++index;
-    if (token->type == Token::Type::kComment) {
+    if (cur_token.type == Token::Type::kComment) {
       continue;
-    } else if (token->type == Token::Type::kEnd) {
-      return token;
+    } else if (cur_token.type == Token::Type::kEnd) {
+      *token = cur_token;
+      return true;
     } else {
       --more;
       if (more == 0) {
-        return token;
+        *token = cur_token;
+        return true;
       }
     }
   }
 }
 
-void Lexer::Epoch(Lexer::Error::List* errors) {
+bool Lexer::Epoch(ParsingException* exception) {
   if (tokens_.size() != 0 &&
-      tokens_.front()->type == Token::Type::kEnd) {
-    return;
+      tokens_.back().type == Token::Type::kEnd) {
+    return true;
   }
   SkipBlanks();
   if (!source_provider_->HasNext()) {
-    PushBackToken("", Token::Type::kEnd,
-        source_provider_->LookRow(), source_provider_->LookColumn());
-    return;
+    tokens_.push_back(Token {
+        std::string(""), Token::Type::kEnd,
+        source_provider_->LookRow(), source_provider_->LookColumn()
+    });
+    return true;
   }
-  Epoch0(errors);
+  return Epoch0(exception);
 }
 
-void Lexer::Epoch0(Lexer::Error::List* errors) {
+bool Lexer::Epoch0(ParsingException* exception) {
   int row = source_provider_->LookRow();
   int column = source_provider_->LookColumn();
   std::string string;
@@ -144,7 +152,7 @@ void Lexer::Epoch0(Lexer::Error::List* errors) {
   switch (c) {
     case ';':
       PushBackToken(";", Token::Type::kSemicolon, row, column);
-      return;
+      return true;
     case '(':
       PushBackToken(
           "(",
@@ -154,7 +162,7 @@ void Lexer::Epoch0(Lexer::Error::List* errors) {
               Token::Type::kBracketLeft,
           row,
           column);
-      return;
+      return true;
     case ')':
       PushBackToken(
           ")",
@@ -164,7 +172,7 @@ void Lexer::Epoch0(Lexer::Error::List* errors) {
               Token::Type::kBracketRight,
           row,
           column);
-      return;
+      return true;
     case '[':
       PushBackToken(
           "[",
@@ -174,7 +182,7 @@ void Lexer::Epoch0(Lexer::Error::List* errors) {
               Token::Type::kBracketLeft,
           row,
           column);
-        return;
+        return true;
     case ']':
       PushBackToken(
           "]",
@@ -184,7 +192,7 @@ void Lexer::Epoch0(Lexer::Error::List* errors) {
               Token::Type::kBracketRight,
           row,
           column);
-      return;
+      return true;
     case '{':
       PushBackToken(
           "{",
@@ -194,7 +202,7 @@ void Lexer::Epoch0(Lexer::Error::List* errors) {
             Token::Type::kBracketLeft,
           row,
           column);
-      return;
+      return true;
     case '}':
       PushBackToken(
           "}",
@@ -204,7 +212,7 @@ void Lexer::Epoch0(Lexer::Error::List* errors) {
               Token::Type::kBracketRight,
           row,
           column);
-      return;
+      return true;
     case '*':
       PushBackToken(
           "*",
@@ -213,7 +221,7 @@ void Lexer::Epoch0(Lexer::Error::List* errors) {
               Token::Type::kOperatorMultiply,
           row,
           column);
-      return;
+      return true;
     case '<':
       PushBackToken(
           "<",
@@ -222,7 +230,7 @@ void Lexer::Epoch0(Lexer::Error::List* errors) {
               Token::Type::kOperatorLesser,
           row,
           column);
-      return;
+      return true;
     case '>':
       PushBackToken(
           ">",
@@ -231,10 +239,10 @@ void Lexer::Epoch0(Lexer::Error::List* errors) {
               Token::Type::kOperatorGreater,
           row,
           column);
-      return;
+      return true;
     case '\0':
       PushBackToken("", Token::Type::kEnd, row, column);
-      return;
+      return true;
     case '.':
       status = 15;
       break;
@@ -261,32 +269,43 @@ void Lexer::Epoch0(Lexer::Error::List* errors) {
       } else if (IsNumber(c)) {
         status = 2;
       } else {
-        PushBackError(
-            std::string() + "invalid char'" + c + "'",
-            row, column, errors);
+        if (exception != nullptr) {
+          *exception = ParsingException {
+              std::string() + "invalid char'" + c + "'",
+              row,
+              column
+          };
+          return false;
+        }
       }
       break;
     }
   }
-  EpochElse(status, row, column, &string, errors);
+  return EpochElse(status, row, column, &string, exception);
 }
 
-void Lexer::EpochElse(int status, int row, int column,
-    std::string* string, Lexer::Error::List* errors) {
+bool Lexer::EpochElse(int status, int row, int column,
+    std::string* string, ParsingException* exception) {
   auto push_back_comment_not_end_error = [&]() {
-    PushBackError(
+    if (exception != nullptr) {
+      *exception = ParsingException {
         "a string must have end double quotation mark "
         "or in a single line",
         source_provider_->LookRow(),
         source_provider_->LookColumn(),
-        errors);
+      };
+    }
+    return false;
   };
   auto push_back_string_not_end_error = [&]() {
-    PushBackError(
+    if (exception != nullptr) {
+      *exception = ParsingException {
         "a multi-line comment must have its end mark '*/'",
         source_provider_->LookRow(),
         source_provider_->LookColumn(),
-        errors);
+      };
+    }
+    return false;
   };
   while (true) {
     char c = source_provider_->LookCurrent();
@@ -301,7 +320,7 @@ void Lexer::EpochElse(int status, int row, int column,
           source_provider_->MoveNext();
         } else {
           PushBackToken(*string, Token::Type::kIdentifier, row, column);
-          return;
+          return true;
         }
         break;
       }
@@ -322,7 +341,7 @@ void Lexer::EpochElse(int status, int row, int column,
                   Token::Type::kNumberInteger,
               row,
               column);
-          return;
+          return true;
         }
         break;
       }
@@ -339,7 +358,7 @@ void Lexer::EpochElse(int status, int row, int column,
                   Token::Type::kNumberFloat,
               row,
               column);
-          return;
+          return true;
         }
         break;
       }
@@ -365,7 +384,7 @@ void Lexer::EpochElse(int status, int row, int column,
               type,
               row,
               column);
-          return;
+          return true;
         }
         break;
       }
@@ -381,7 +400,7 @@ void Lexer::EpochElse(int status, int row, int column,
                   Token::Type::kOperatorAnd,
               row,
               column);
-          return;
+          return true;
         } else {
           PushBackToken(
               *string,
@@ -390,7 +409,7 @@ void Lexer::EpochElse(int status, int row, int column,
                   Token::Type::kOperatorAnd,
               row,
               column);
-          return;
+          return true;
         }
         break;
       }
@@ -406,7 +425,7 @@ void Lexer::EpochElse(int status, int row, int column,
                   Token::Type::kOperatorOr,
               row,
               column);
-          return;
+          return true;
         } else {
           source_provider_->MoveNext();
           PushBackToken(
@@ -416,7 +435,7 @@ void Lexer::EpochElse(int status, int row, int column,
                   Token::Type::kOperatorOr,
               row,
               column);
-          return;
+          return true;
         }
         break;
       }
@@ -438,7 +457,7 @@ void Lexer::EpochElse(int status, int row, int column,
                   Token::Type::kOperatorDivide,
               row,
               column);
-          return;
+          return true;
         }
         break;
       }
@@ -451,7 +470,7 @@ void Lexer::EpochElse(int status, int row, int column,
               Token::Type::kComment,
               row,
               column);
-          return;
+          return true;
         } else {
           *string += c;
           source_provider_->MoveNext();
@@ -469,7 +488,7 @@ void Lexer::EpochElse(int status, int row, int column,
           source_provider_->MoveNext();
         } else {
           push_back_comment_not_end_error();
-          return;
+          return false;
         }
         break;
       }
@@ -483,14 +502,14 @@ void Lexer::EpochElse(int status, int row, int column,
               Token::Type::kComment,
               row,
               column);
-          return;
+          return true;
         } else if (c != '\0') {
           *string += c;
           source_provider_->MoveNext();
           status = 11;
         } else {
           push_back_string_not_end_error();
-          return;
+          return false;
         }
         break;
       }
@@ -503,7 +522,7 @@ void Lexer::EpochElse(int status, int row, int column,
               Token::Type::kString,
               row,
               column);
-          return;
+          return true;
         } else if (c == '\\') {
           source_provider_->MoveNext();
           status = 14;
@@ -512,7 +531,7 @@ void Lexer::EpochElse(int status, int row, int column,
           source_provider_->MoveNext();
         } else {
           push_back_comment_not_end_error();
-          return;
+          return false;
         }
         break;
       }
@@ -524,7 +543,7 @@ void Lexer::EpochElse(int status, int row, int column,
           status = 13;
         } else {
           push_back_string_not_end_error();
-          return;
+          return false;
         }
         break;
       }
@@ -536,7 +555,7 @@ void Lexer::EpochElse(int status, int row, int column,
           status = 3;
         } else {
           push_back_comment_not_end_error();
-          return;
+          return false;
         }
       }
       default: {
@@ -559,19 +578,7 @@ void Lexer::SkipBlanks() {
 
 void Lexer::PushBackToken(const std::string& string,
     const Token::Type& type, int row, int column) {
-  tokens_.push_back(std::make_shared<Token>(string, type, row, column));
-}
-
-void Lexer::PushBackError(const std::string& status, int row, int column,
-    Lexer::Error::List* errors) {
-  errors->push_back(Error {
-    status, row, column});
-  if (on_error_skip()) {
-    Epoch(errors);
-  } else {
-    tokens_.push_back(
-        std::make_shared<Token>("", Token::Type::kEnd, row, column));
-  }
+  tokens_.push_back(Token{string, type, row, column});
 }
 
 }  // namespace vegetable_script

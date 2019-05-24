@@ -46,30 +46,18 @@ XC_MULTI_ENUM(
 class Token {
  public:
   using Type = detail::TokenType;
-
-  using Pointer = std::shared_ptr<Token>;
-
-  using Ptr = Pointer;
-
+  using Ptr = std::shared_ptr<Token>;
   using PtrDeque = std::deque<Ptr>;
-
-  explicit Token(std::string string = "", Type type = Type::kNone,
-    int row = -1, int column = -1);
+  using Deque = std::deque<Token>;
 
   std::string ToString() const;
-
   std::string ToEscapedString() const;
-
   bool MatchType(std::initializer_list<Type::Type_> types);
-
   bool MatchString(const std::string& string);
 
   std::string string;
-
   Type type;
-
   int row;
-
   int column;
 };
 

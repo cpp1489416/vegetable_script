@@ -21,30 +21,19 @@ class SourceProvider {
   explicit SourceProvider(const std::string& source);
 
   SourceProvider(const SourceProvider& rhs);
-
-  char LookCurrent();
-
-  int LookRow();
-
-  int LookColumn();
-
-  inline char LookAhead() { return LookAhead(1); }
-
-  char LookAhead(int count);
-
-  bool HasNext();
-
-  void MoveNext();
+  virtual char LookCurrent();
+  virtual int LookRow();
+  virtual int LookColumn();
+  virtual char LookAhead() { return LookAhead(1); }
+  virtual char LookAhead(int count);
+  virtual bool HasNext();
+  virtual void MoveNext();
 
  private:
   EnterType GetEnterType();
-
   std::string source_;
-
   int position_;
-
   int row_;
-
   int column_;
 };
 

@@ -16,7 +16,7 @@ void AstStringer::Visit(IdentifierExpression* node) {
 
 void AstStringer::Visit(UnaryExpression* node) {
   stream_ << node->operatorr.ToString();
-  node->child_expression->Accept(this);
+  node->operand_expression->Accept(this);
 }
 
 void AstStringer::Visit(BinaryExpression* node) {
