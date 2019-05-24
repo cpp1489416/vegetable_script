@@ -7,8 +7,10 @@ set(src_list
     common/string_util.cpp
     common/file_util.cpp
     parsing/token.cpp
+    parsing/parsing_exception.cpp
     parsing/source_provider.cpp
     parsing/lexer.cpp
+    parsing/ll1_expression_analyzer.cpp
     visitor/ast_stringer.cpp)
 
 add_library(vegetable-script-core STATIC ${src_list})

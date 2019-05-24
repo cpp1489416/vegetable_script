@@ -66,7 +66,6 @@ bool LL1ExpressionAnalyzer::ParseBinaryExpression(
   auto operator_types_iterator = operator_types.begin();
   for (; token_type_iterator != token_types.end();
       ++token_type_iterator, ++operator_types_iterator) {
-    std::cout << token_type_iterator->ToString() << std::endl;
     Token token;
     if (!lexer->LookCurrentWithoutComments(&token, exception)) {
       return false;
@@ -76,7 +75,12 @@ bool LL1ExpressionAnalyzer::ParseBinaryExpression(
       auto ans_expression = std::make_shared<BinaryExpression>();
       ans_expression->left_expression = left_expression;
       ans_expression->operatorr = *operator_types_iterator;
-      if (!(this->*child_function)(lexer, &ans_expression->right_expression,
+      if (!ParseBinaryExpression(
+          child_function,
+          token_types,
+          operator_types,
+          lexer,
+          &ans_expression->right_expression,
           exception)) {
         return false;
       }
@@ -109,7 +113,7 @@ bool LL1ExpressionAnalyzer::ParseUnaryExpression(
   for (size_t i = 0; i < sizeof(token_types) / sizeof(token_types[0]); ++i) {
     if (token.type == token_types[i]) {
       lexer->MoveNext();
-      UnaryExpression::Ptr ans_expression;
+      auto ans_expression = std::make_shared<UnaryExpression>();
       ans_expression->operatorr = unary_operator_types[i];
       if (!ParseSingleExpression(lexer, &ans_expression->operand_expression,
           exception)) {
@@ -120,7 +124,7 @@ bool LL1ExpressionAnalyzer::ParseUnaryExpression(
       return true;
     }
   }
-  return ParseSingleExpression(lexer, expression, exception));
+  return ParseSingleExpression(lexer, expression, exception);
 }
 
 bool LL1ExpressionAnalyzer::ParseSingleExpression(
@@ -151,25 +155,22 @@ bool LL1ExpressionAnalyzer::ParseSingleExpression(
     lexer->MoveNext();
     return true;
   } else if (token.type == Token::Type::kNumberFloat) {
-    FloatExpression::Ptr ans_expression;
+    auto ans_expression = std::make_shared<FloatExpression>();
     ans_expression->value = xc::StringUtil::ToDouble(token.string);
     *expression = ans_expression;
     return true;
   } else if (token.type == Token::Type::kNumberInteger) {
-    IntegerExpression::Ptr ans_expression;
+    auto ans_expression = std::make_shared<IntegerExpression>();
     ans_expression->value = xc::StringUtil::ToInt(token.string);
     *expression = ans_expression;
     return true;
   } else if (token.type == Token::Type::kString) {
-    StringExpression::Ptr ans_expression;
+    auto ans_expression = std::make_shared<StringExpression>();
     ans_expression->value = token.string;
     *expression = ans_expression;
     return true;
   } else if (token.type == Token::Type::kIdentifier) {
-    if (!lexer->LookCurrentWithoutComments(&token, exception)) {
-      return false;
-    }
-    IdentifierExpression::Ptr ans_expression;
+    auto ans_expression = std::make_shared<IdentifierExpression>();
     ans_expression->value = token.string;
     *expression = ans_expression;
     return true;

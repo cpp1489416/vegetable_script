@@ -5,7 +5,8 @@ include_directories(${PROJECT_SOURCE_DIR}/../core)
 add_executable(vegetable-script-test
     main.cpp
     test_lexer.cpp
-    test_file.cpp)
+    test_file.cpp
+    test_statement_analyzer.cpp)
 
 target_link_libraries(vegetable-script-test vegetable-script-core)
 

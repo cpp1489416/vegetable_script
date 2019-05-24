@@ -289,8 +289,7 @@ bool Lexer::EpochElse(int status, int row, int column,
   auto push_back_comment_not_end_error = [&]() {
     if (exception != nullptr) {
       *exception = ParsingException {
-        "a string must have end double quotation mark "
-        "or in a single line",
+        "a multi-line comment must have its end mark '*/'",
         source_provider_->LookRow(),
         source_provider_->LookColumn(),
       };
@@ -300,7 +299,8 @@ bool Lexer::EpochElse(int status, int row, int column,
   auto push_back_string_not_end_error = [&]() {
     if (exception != nullptr) {
       *exception = ParsingException {
-        "a multi-line comment must have its end mark '*/'",
+        "a string must have end double quotation mark "
+        "or in a single line",
         source_provider_->LookRow(),
         source_provider_->LookColumn(),
       };
@@ -508,7 +508,7 @@ bool Lexer::EpochElse(int status, int row, int column,
           source_provider_->MoveNext();
           status = 11;
         } else {
-          push_back_string_not_end_error();
+          push_back_comment_not_end_error();
           return false;
         }
         break;

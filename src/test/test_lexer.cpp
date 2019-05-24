@@ -24,7 +24,7 @@ void OutputTokens(vegetable_script::Lexer* lexer) {
 }
 
 
-XC_TEST_CASE(LEXER, true) {
+XC_TEST_CASE(LEXER, false) {
   std::cout << __FILE__ << std::endl;
   using namespace vegetable_script;  // NOLINT
   const char* source_codes[] = {

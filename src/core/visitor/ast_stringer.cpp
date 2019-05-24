@@ -10,12 +10,23 @@ void AstStringer::Visit(IntegerExpression* node) {
   stream_ << node->value;
 }
 
+void AstStringer::Visit(StringExpression* node) {
+  stream_ << "\"" << node->value << "\"";
+}
+
 void AstStringer::Visit(IdentifierExpression* node) {
   stream_ << node->value;
 }
 
 void AstStringer::Visit(UnaryExpression* node) {
   stream_ << node->operatorr.ToString();
+  std::string c;
+  if (node->operatorr == UnaryExpression::Operator::kNegative) {
+    c = "-";
+  } else {
+    c = "+";
+  }
+  stream_ << " " << c << " ";
   node->operand_expression->Accept(this);
 }
 
@@ -23,7 +34,20 @@ void AstStringer::Visit(BinaryExpression* node) {
   stream_ << "(";
   node->left_expression->Accept(this);
 
-  stream_ << " " << node->operatorr.ToString() << " ";
+  std::string ope;
+  if (node->operatorr == BinaryExpression::Operator::kPlus) {
+    ope = "+";
+  } else if (node->operatorr == BinaryExpression::Operator::kMinus) {
+    ope = "-";
+  } else if (node->operatorr == BinaryExpression::Operator::kMultiply) {
+    ope = "*";
+  } else if (node->operatorr == BinaryExpression::Operator::kDivide) {
+    ope = "/";
+  } else {
+    ope = node->operatorr.ToString();
+  }
+
+  stream_ << " " << ope << " ";
 
   node->right_expression->Accept(this);
   stream_ << ")";

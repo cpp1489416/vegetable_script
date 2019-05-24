@@ -1,5 +1,5 @@
-
 #include "./source_provider.h"
+#include "../common/file_util.h"
 
 namespace vegetable_script {
 
@@ -12,6 +12,11 @@ SourceProvider::SourceProvider(const SourceProvider& rhs) :
   position_(rhs.position_),
   row_(rhs.row_),
   column_(rhs.column_) {
+}
+
+SourceProvider SourceProvider::FromFile(const std::string& path) {
+  SourceProvider ans = SourceProvider(xc::FileUtil::ReadToString(path));
+  return ans;
 }
 
 char SourceProvider::LookCurrent() {
@@ -55,7 +60,7 @@ char SourceProvider::LookAhead(int count) {
 }
 
 bool SourceProvider::HasNext() {
-    return LookAhead() != '\0';
+    return LookCurrent() != '\0';
 }
 
 void SourceProvider::MoveNext() {

@@ -14,10 +14,11 @@ namespace vegetable_script {
 
 class Lexer {
  public:
-  using Ptr = std::shared_ptr<Lexer>;
+  using Self = Lexer;
+  using Ptr = std::shared_ptr<Self>;
+  using Iterator = Self;
 
-  explicit Lexer(
-      SourceProvider::Ptr source_provider);
+  explicit Lexer(SourceProvider::Ptr source_provider);
 
   bool HasNext();
   void MoveNext();

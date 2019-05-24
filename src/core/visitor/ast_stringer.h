@@ -11,6 +11,8 @@ class AstStringer : public IVisitor {
 
   void Visit(IntegerExpression* node) override;
 
+  void Visit(StringExpression* node) override;
+
   void Visit(IdentifierExpression* node) override;
 
   void Visit(UnaryExpression *node) override;

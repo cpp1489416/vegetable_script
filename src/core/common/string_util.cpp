@@ -1,6 +1,5 @@
 
 #include "./string_util.h"
-#include "./unit_test.h"
 
 #include <cstdlib>
 #include <iostream>

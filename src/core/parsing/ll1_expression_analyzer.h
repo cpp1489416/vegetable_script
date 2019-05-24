@@ -23,10 +23,8 @@ class LL1ExpressionAnalyzer {
 
   bool ParseExpression(Lexer* lexer, Expression::Ptr* expression,
       Exception* exception);
-
   bool ParsePlusExpression(Lexer* lexer, Expression::Ptr* expression,
       Exception* exception);
-
   bool ParseMultiplyExpression(Lexer* lexer, Expression::Ptr* expression,
       Exception* exception);
 
@@ -40,7 +38,6 @@ class LL1ExpressionAnalyzer {
 
   bool ParseUnaryExpression(Lexer* lexer, Expression::Ptr* expression,
       Exception* exception);
-
   bool ParseSingleExpression(Lexer* lexer, Expression::Ptr* expression,
       Exception* exception);
 };

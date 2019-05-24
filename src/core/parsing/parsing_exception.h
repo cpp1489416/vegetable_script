@@ -15,6 +15,9 @@ struct ParsingException {
   using Ptr = std::shared_ptr<ParsingException>;
   using List = std::deque<ParsingException>;
 
+  std::string ToString();
+  std::string ToString(const std::string& additional);
+
   std::string status;
   int row;
   int column;

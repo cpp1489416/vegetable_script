@@ -19,8 +19,8 @@ class SourceProvider {
   using Ptr = std::shared_ptr<SourceProvider>;
 
   explicit SourceProvider(const std::string& source);
-
   SourceProvider(const SourceProvider& rhs);
+
   virtual char LookCurrent();
   virtual int LookRow();
   virtual int LookColumn();
@@ -29,7 +29,11 @@ class SourceProvider {
   virtual bool HasNext();
   virtual void MoveNext();
 
+  static SourceProvider FromFile(const std::string& path);
+
  private:
+  SourceProvider& operator=(const SourceProvider&);
+
   EnterType GetEnterType();
   std::string source_;
   int position_;
