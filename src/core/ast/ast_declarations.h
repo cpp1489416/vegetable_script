@@ -11,13 +11,12 @@ struct Ast;
 struct Expression;
 struct EmptyExpression;
 struct LHSExpression;
-struct VariableExpression;
 struct IdentifierExpression;
 struct StringExpression;
 struct NumberExpression;
 struct IntegerExpression;
 struct FloatExpression;
-struct FunctionExpression;
+struct FunctionInvokeExpression;
 struct UnaryExpression;
 struct BinaryExpression;
 
@@ -67,8 +66,6 @@ struct IVisitor {
 
   virtual void Visit(EmptyExpression* node) {}
 
-  virtual void Visit(VariableExpression* node) {}
-
   virtual void Visit(UnaryExpression* node) {}
 
   virtual void Visit(BinaryExpression* node) {}
@@ -83,7 +80,7 @@ struct IVisitor {
 
   virtual void Visit(ForStatement* node) {}
 
-  virtual void Visit(FunctionExpression* node) {}
+  virtual void Visit(FunctionInvokeExpression* node) {}
 
   virtual void Visit(VariableDefinition* node) {}
 

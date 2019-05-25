@@ -14,7 +14,22 @@ bool LL1ExpressionAnalyzer::ParseExpression(
     Lexer* lexer,
     Expression::Ptr* expression,
     LL1ExpressionAnalyzer::Exception* exception) {
-  return ParsePlusExpression(lexer, expression, exception);
+  return ParseCommaExpression(lexer, expression, exception);
+}
+
+bool LL1ExpressionAnalyzer::ParseCommaExpression(
+    Lexer* lexer,
+    Expression::Ptr* expression,
+    LL1ExpressionAnalyzer::Exception* exception) {
+  return ParseBinaryExpression(
+      &Self::ParsePlusExpression, {
+          Token::Type::kOperatorComma
+      }, {
+          BinaryExpression::Operator::kComma
+      },
+      lexer,
+      expression,
+      exception);
 }
 
 bool LL1ExpressionAnalyzer::ParsePlusExpression(
@@ -58,39 +73,40 @@ bool LL1ExpressionAnalyzer::ParseBinaryExpression(
     Lexer* lexer,
     Expression::Ptr* expression,
     LL1ExpressionAnalyzer::Exception* exception) {
-  Expression::Ptr left_expression;
-  if (!(this->*child_function)(lexer, &left_expression, exception)) {
+  Expression::Ptr ans_expression;
+  if (!(this->*child_function)(lexer, &ans_expression, exception)) {
     return false;
   }
-  auto token_type_iterator = token_types.begin();
-  auto operator_types_iterator = operator_types.begin();
-  for (; token_type_iterator != token_types.end();
-      ++token_type_iterator, ++operator_types_iterator) {
+  while (true) {
+    auto token_type_iterator = token_types.begin();
+    auto operator_types_iterator = operator_types.begin();
     Token token;
-    if (!lexer->LookCurrentWithoutComments(&token, exception)) {
-      return false;
-    }
-    if (token.type.contains(*token_type_iterator)) {
-      lexer->MoveNext();
-      auto ans_expression = std::make_shared<BinaryExpression>();
-      ans_expression->left_expression = left_expression;
-      ans_expression->operatorr = *operator_types_iterator;
-      if (!ParseBinaryExpression(
-          child_function,
-          token_types,
-          operator_types,
-          lexer,
-          &ans_expression->right_expression,
-          exception)) {
+    bool found = false;
+    for (; token_type_iterator != token_types.end();
+        ++token_type_iterator, ++operator_types_iterator) {
+      if (!lexer->LookCurrentWithoutComments(&token, exception)) {
         return false;
       }
-      ans_expression->left_expression->parent = ans_expression;
-      ans_expression->right_expression->parent = ans_expression;
-      *expression = ans_expression;
-      return true;
+      if (token.type.contains(*token_type_iterator)) {
+        lexer->MoveNext();
+        found = true;
+        auto tmp_expression = std::make_shared<BinaryExpression>();
+        tmp_expression->left_expression = ans_expression;
+        tmp_expression->operatorr = *operator_types_iterator;
+        if (!(this->*child_function)(lexer, &tmp_expression->right_expression,
+            exception)) {
+          return false;
+        }
+        tmp_expression->left_expression->parent = tmp_expression;
+        tmp_expression->right_expression->parent = tmp_expression;
+        ans_expression = tmp_expression;
+      }
+    }
+    if (!found) {
+      break;
     }
   }
-  *expression = left_expression;
+  *expression = ans_expression;
   return true;
 }
 
@@ -135,9 +151,9 @@ bool LL1ExpressionAnalyzer::ParseSingleExpression(
   if (!lexer->LookCurrentWithoutComments(&token, exception)) {
     return false;
   }
-  lexer->MoveNext();
   if (token.MatchType({ Token::Type::kBracketSmall,
       Token::Type::kBracketLeft})) {
+    lexer->MoveNext();
     if (!ParseExpression(lexer, expression, exception)) {
       return false;
     }
@@ -155,32 +171,108 @@ bool LL1ExpressionAnalyzer::ParseSingleExpression(
     lexer->MoveNext();
     return true;
   } else if (token.type == Token::Type::kNumberFloat) {
+    lexer->MoveNext();
     auto ans_expression = std::make_shared<FloatExpression>();
     ans_expression->value = xc::StringUtil::ToDouble(token.string);
     *expression = ans_expression;
     return true;
   } else if (token.type == Token::Type::kNumberInteger) {
+    lexer->MoveNext();
     auto ans_expression = std::make_shared<IntegerExpression>();
     ans_expression->value = xc::StringUtil::ToInt(token.string);
     *expression = ans_expression;
     return true;
   } else if (token.type == Token::Type::kString) {
+    lexer->MoveNext();
     auto ans_expression = std::make_shared<StringExpression>();
     ans_expression->value = token.string;
     *expression = ans_expression;
     return true;
   } else if (token.type == Token::Type::kIdentifier) {
-    auto ans_expression = std::make_shared<IdentifierExpression>();
-    ans_expression->value = token.string;
-    *expression = ans_expression;
-    return true;
+    Token next_token;
+    if (!lexer->LookAheadWithoutComments(&next_token, exception)) {
+      return false;
+    }
+    if (next_token.MatchType({Token::Type::kBracketSmall,
+        Token::Type::kBracketLeft})) {
+      return ParseFunctionInvokeExpression(lexer, expression, exception);
+    } else {
+      lexer->MoveNext();
+      auto ans_expression = std::make_shared<IdentifierExpression>();
+      ans_expression->value = token.string;
+      *expression = ans_expression;
+      return true;
+    }
   } else {
     *exception = Exception {
-      "unknown token: \"" + token.ToString() + "\"",
+      "unknown token: \"" + token.string + "\"",
       token.row, token.column
     };
     return false;
   }
+}
+
+bool LL1ExpressionAnalyzer::ParseFunctionInvokeExpression(
+    Lexer* lexer,
+    Expression::Ptr* expression,
+    LL1ExpressionAnalyzer::Exception* exception) {
+  auto ans_expression = std::make_shared<FunctionInvokeExpression>();
+  Token token;
+  if (!lexer->LookCurrent(&token, exception)) {
+    return false;
+  }
+  ans_expression->function_name = token.string;
+  lexer->MoveNext();
+  if (!lexer->LookCurrentWithoutComments(&token, exception)) {
+    return false;
+  }
+  if (!token.MatchType({Token::Type::kBracketSmall,
+      Token::Type::kBracketLeft})) {
+    *exception = Exception {
+      "a function invoke expression must have a \"(\" after function name",
+      token.row, token.column
+    };
+    return false;
+  }
+  lexer->MoveNext();
+  if (!lexer->LookCurrentWithoutComments(&token, exception)) {
+    return false;
+  }
+  if (token.MatchType({Token::Type::kBracketSmall,
+      Token::Type::kBracketRight})) {
+    lexer->MoveNext();
+    *expression = ans_expression;
+    return true;
+  }
+  while (true) {
+    if (!lexer->LookCurrentWithoutComments(&token, exception)) {
+      return false;
+    }
+    Expression::Ptr argument;
+    if (!ParsePlusExpression(lexer, &argument, exception)) {
+      return false;
+    }
+    ans_expression->arguments.push_back(argument);
+    if (!lexer->LookCurrentWithoutComments(&token, exception)) {
+      return false;
+    }
+    if (token.MatchType({Token::Type::kBracketSmall,
+        Token::Type::kBracketRight})) {
+      lexer->MoveNext();
+      break;
+    }
+    if (!token.MatchType({Token::Type::kOperatorComma})) {
+      *exception = Exception {
+        "each expression must be splitted with a \",\"",
+        token.row, token.column
+      };
+      return false;
+    }
+    lexer->MoveNext();
+  }
+
+  *expression = ans_expression;
+  return true;
 }
 
 }  // namespace vegetable_script

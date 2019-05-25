@@ -64,22 +64,6 @@ struct FloatExpression: public NumberExpression {
   double value;
 };
 
-struct VariableExpression : public Expression {
-  void Accept(IVisitor* visitor) override { visitor->Visit(this); }
-
-  Token token;
-  std::string name;
-};
-
-struct FunctionExpression : public Expression {
-  using ArgumentList = std::vector<Expression::Ptr>;
-
-  void Accept(IVisitor* visitor) override { visitor->Visit(this); }
-
-  std::string name;
-  ArgumentList argument_list;
-};
-
 struct UnaryExpression: public Expression {
   using Ptr = std::shared_ptr<UnaryExpression>;
 
@@ -104,7 +88,8 @@ struct BinaryExpression : public Expression {
     kDivide,  // /
     kGreater,  // >
     kLesser,  // <
-    kEqual
+    kEqual,
+    kComma,
   )
 
   void Accept(IVisitor* visitor) override { visitor->Visit(this); }
@@ -112,6 +97,16 @@ struct BinaryExpression : public Expression {
   Expression::Ptr left_expression;
   Operator operatorr;
   Expression::Ptr right_expression;
+};
+
+struct FunctionInvokeExpression : public Expression {
+  using Ptr = std::shared_ptr<FunctionInvokeExpression>;
+  using ArgumentList = std::vector<Expression::Ptr>;
+
+  void Accept(IVisitor* visitor) override { visitor->Visit(this); }
+
+  std::string function_name;
+  ArgumentList arguments;
 };
 
 }  // namespace vegetable_script

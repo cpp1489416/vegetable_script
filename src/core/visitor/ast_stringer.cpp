@@ -43,6 +43,8 @@ void AstStringer::Visit(BinaryExpression* node) {
     ope = "*";
   } else if (node->operatorr == BinaryExpression::Operator::kDivide) {
     ope = "/";
+  } else if (node->operatorr == BinaryExpression::Operator::kComma) {
+    ope = ",";
   } else {
     ope = node->operatorr.ToString();
   }
@@ -50,6 +52,19 @@ void AstStringer::Visit(BinaryExpression* node) {
   stream_ << " " << ope << " ";
 
   node->right_expression->Accept(this);
+  stream_ << ")";
+}
+
+void AstStringer::Visit(FunctionInvokeExpression* node) {
+  stream_ << node->function_name << "(";
+  if (node->arguments.size() != 0) {
+    node->arguments[0]->Accept(this);
+    for (int i = 1; i < node->arguments.size(); ++i) {
+      stream_ << ", ";
+      node->arguments[i]->Accept(this);
+    }
+  }
+
   stream_ << ")";
 }
 

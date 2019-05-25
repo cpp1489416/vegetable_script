@@ -70,7 +70,6 @@ struct VariableDefinition : public Ast {
 struct ParameterDefinition : public Ast {
   void Accept(IVisitor* visitor) override { visitor->Visit(this); }
 
-  Pointer<VariableExpression> variable_expression;
   bool is_my_reference = false;
 };
 

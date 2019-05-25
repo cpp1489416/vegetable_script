@@ -19,6 +19,8 @@ class AstStringer : public IVisitor {
 
   void Visit(BinaryExpression *node) override;
 
+  void Visit(FunctionInvokeExpression* node) override;
+
   std::string Result() {
     return stream_.str();
   }

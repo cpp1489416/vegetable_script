@@ -222,6 +222,14 @@ bool Lexer::Epoch0(ParsingException* exception) {
           row,
           column);
       return true;
+    case ',':
+      PushBackToken(
+          ",",
+          Token::Type() << Token::Type::kOperator <<
+              Token::Type::kOperatorComma,
+          row,
+          column);
+      return true;
     case '<':
       PushBackToken(
           "<",

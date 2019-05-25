@@ -23,6 +23,8 @@ class LL1ExpressionAnalyzer {
 
   bool ParseExpression(Lexer* lexer, Expression::Ptr* expression,
       Exception* exception);
+  bool ParseCommaExpression(Lexer* lexer, Expression::Ptr* expression,
+      Exception* exception);
   bool ParsePlusExpression(Lexer* lexer, Expression::Ptr* expression,
       Exception* exception);
   bool ParseMultiplyExpression(Lexer* lexer, Expression::Ptr* expression,
@@ -40,6 +42,8 @@ class LL1ExpressionAnalyzer {
       Exception* exception);
   bool ParseSingleExpression(Lexer* lexer, Expression::Ptr* expression,
       Exception* exception);
+  bool ParseFunctionInvokeExpression(Lexer* lexer, Expression::Ptr* expression,
+      Exception* excetion);
 };
 
 }  // namespace vegetable_script

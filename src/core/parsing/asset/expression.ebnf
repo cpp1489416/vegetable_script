@@ -1,27 +1,27 @@
 
-expression::= 
+expression::=
     plus_expression;
 
-plus_expression ::= 
+plus_expression ::=
     multiply_expression "+" plus_expression,
     multiply_expression "-" plus_expression,
     multiply_expression;
 
-multiply_expression ::= 
-    negative_expression "*" multiply_expression,  
-    negative_expression "/" multiply_expression, 
+multiply_expression ::=
+    negative_expression "*" multiply_expression,
+    negative_expression "/" multiply_expression,
     negative_expression;
 
 unary_expression ::=
-    "+" unary_expression,
-    "-" unary_expression,
-    unary_expression;
+    "+" single_expression,
+    "-" single_expression,
+    single_expression;
 
-single_expression ::= 
-    "(" expression ")", 
-    number_token, 
-    string_token, 
-    identifier_token, 
+single_expression ::=
+    "(" expression ")",
+    number_token,
+    string_token,
+    identifier_token,
     identifier_token "(" argument_list ")";
 
 argument_list ::=

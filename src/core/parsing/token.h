@@ -31,6 +31,7 @@ XC_MULTI_ENUM(
   kOperatorAnd, kOperatorOr,
   kOperatorGreater, kOperatorLesser,
   kOperatorShiftLeft, kOperatorShitRight,
+  kOperatorComma,
 
   kComment,
   kString,
