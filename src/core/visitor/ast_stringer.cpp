@@ -75,7 +75,22 @@ void AstStringer::Visit(ExpressionStatement* node) {
 }
 
 void AstStringer::Visit(BlockStatement* node) {
+  stream_ << "{";
+  for (auto i : node->statements) {
+    i->Accept(this);
+  }
+  stream_ << "}";
+}
 
+void AstStringer::Visit(IfStatement* node) {
+  stream_ << "if (";
+  node->condition_expression->Accept(this);
+  stream_ << ")";
+  node->body_statement->Accept(this);
+  if (node->else_statement) {
+    stream_ << "else";
+    node->else_statement->Accept(this);
+  }
 }
 
 /*

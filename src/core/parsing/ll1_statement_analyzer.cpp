@@ -146,6 +146,7 @@ bool Ll1StatementAnalyzer::ParseIfStatement(
     };
     return false;
   }
+  lexer->MoveNext();
   if (!lexer->LookCurrentWithoutComments(&token, exception)) {
     return false;
   }
@@ -158,6 +159,7 @@ bool Ll1StatementAnalyzer::ParseIfStatement(
     };
     return false;
   }
+  lexer->MoveNext();
   auto if_statement = std::make_shared<IfStatement>();
   if (!expression_analyzer_.Parse(lexer,
       &if_statement->condition_expression, exception)) {
@@ -167,7 +169,7 @@ bool Ll1StatementAnalyzer::ParseIfStatement(
     return false;
   }
   if (!token.MatchType({ Token::Type::kBracketSmall,
-      Token::Type::kBracketLeft })) {
+      Token::Type::kBracketRight })) {
     *exception = {
       "missing \")\"",
       token.row,
