@@ -19,14 +19,13 @@ void AstStringer::Visit(IdentifierExpression* node) {
 }
 
 void AstStringer::Visit(UnaryExpression* node) {
-  stream_ << node->operatorr.ToString();
   std::string c;
   if (node->operatorr == UnaryExpression::Operator::kNegative) {
     c = "-";
   } else {
     c = "+";
   }
-  stream_ << " " << c << " ";
+  stream_ << c;
   node->operand_expression->Accept(this);
 }
 
@@ -45,6 +44,8 @@ void AstStringer::Visit(BinaryExpression* node) {
     ope = "/";
   } else if (node->operatorr == BinaryExpression::Operator::kComma) {
     ope = ",";
+  } else if (node->operatorr == BinaryExpression::Operator::kEqual) {
+    ope = "=";
   } else {
     ope = node->operatorr.ToString();
   }
@@ -66,6 +67,15 @@ void AstStringer::Visit(FunctionInvokeExpression* node) {
   }
 
   stream_ << ")";
+}
+
+void AstStringer::Visit(ExpressionStatement* node) {
+  node->expression->Accept(this);
+  stream_ << ";";
+}
+
+void AstStringer::Visit(BlockStatement* node) {
+
 }
 
 /*

@@ -11,6 +11,7 @@ set(src_list
     parsing/source_provider.cpp
     parsing/lexer.cpp
     parsing/ll1_expression_analyzer.cpp
+    parsing/ll1_statement_analyzer.cpp
     visitor/ast_stringer.cpp)
 
 add_library(vegetable-script-core STATIC ${src_list})

@@ -133,7 +133,7 @@ bool Lexer::Epoch(ParsingException* exception) {
   SkipBlanks();
   if (!source_provider_->HasNext()) {
     tokens_.push_back(Token {
-        std::string(""), Token::Type::kEnd,
+        std::string("\\0"), Token::Type::kEnd,
         source_provider_->LookRow(), source_provider_->LookColumn()
     });
     return true;
@@ -248,8 +248,17 @@ bool Lexer::Epoch0(ParsingException* exception) {
           row,
           column);
       return true;
+    case '=':
+      PushBackToken(
+          "=",
+          Token::Type() <<
+              Token::Type::kOperator <<
+              Token::Type::kOperatorEqual,
+          row,
+          column);
+      return true;
     case '\0':
-      PushBackToken("", Token::Type::kEnd, row, column);
+      PushBackToken("\\0", Token::Type::kEnd, row, column);
       return true;
     case '.':
       status = 15;
@@ -327,7 +336,7 @@ bool Lexer::EpochElse(int status, int row, int column,
           *string += c;
           source_provider_->MoveNext();
         } else {
-          PushBackToken(*string, Token::Type::kIdentifier, row, column);
+          PushBackIdentifierOrKeyword(*string, row, column);
           return true;
         }
         break;
@@ -586,7 +595,26 @@ void Lexer::SkipBlanks() {
 
 void Lexer::PushBackToken(const std::string& string,
     const Token::Type& type, int row, int column) {
-  tokens_.push_back(Token{string, type, row, column});
+  tokens_.push_back(Token{ string, type, row, column });
+}
+
+void Lexer::PushBackIdentifierOrKeyword(const std::string& string,
+    int row, int column) {
+  static std::map<std::string, Token::Type::Type_> keywords {
+    { "if", Token::Type::kKeywordIf },
+    { "else", Token::Type::kKeywordElse },
+    { "while", Token::Type::kKeywordWhile },
+    { "for", Token::Type::kKeywordFor }
+  };
+  if (keywords.count(string) == 0) {
+    tokens_.push_back(Token {string, Token::Type::kIdentifier, row, column});
+  } else {
+    tokens_.push_back(Token {
+      string,
+      Token::Type() << Token::Type::kKeyword << keywords[string],
+      row,
+      column});
+  }
 }
 
 }  // namespace vegetable_script

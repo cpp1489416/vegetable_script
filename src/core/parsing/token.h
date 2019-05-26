@@ -9,7 +9,7 @@
 
 namespace vegetable_script {
 
-namespace detail {
+namespace details {
 
 XC_MULTI_ENUM(
   TokenType,
@@ -28,6 +28,7 @@ XC_MULTI_ENUM(
   kOperator,
   kOperatorPlusOrPositive, kOperatorMinusOrNegative,
   kOperatorMultiply, kOperatorDivide,
+  kOperatorEqual,
   kOperatorAnd, kOperatorOr,
   kOperatorGreater, kOperatorLesser,
   kOperatorShiftLeft, kOperatorShitRight,
@@ -37,16 +38,16 @@ XC_MULTI_ENUM(
   kString,
 
   kKeyword,
-  kKeywordIf, kKeywordElse, kKeywordWhile,
+  kKeywordIf, kKeywordElse, kKeywordWhile, kKeywordFor,
 
   kIdentifier
 )
 
-}  // namespace detail
+}  // namespace details
 
 class Token {
  public:
-  using Type = detail::TokenType;
+  using Type = details::TokenType;
   using Ptr = std::shared_ptr<Token>;
   using PtrDeque = std::deque<Ptr>;
   using Deque = std::deque<Token>;

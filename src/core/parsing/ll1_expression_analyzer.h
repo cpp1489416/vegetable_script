@@ -1,5 +1,5 @@
-#ifndef VEGETABLE_SCRIPT_CORE_PARSING_LL1_EXPRESSION_ANALYZER_H_
-#define VEGETABLE_SCRIPT_CORE_PARSING_LL1_EXPRESSION_ANALYZER_H_
+#ifndef VEGETABLE_SCRIPT_CORE_PARSING_Ll1_EXPRESSION_ANALYZER_H_
+#define VEGETABLE_SCRIPT_CORE_PARSING_Ll1_EXPRESSION_ANALYZER_H_
 
 #include <initializer_list>
 #include <memory>
@@ -10,9 +10,9 @@
 
 namespace vegetable_script {
 
-class LL1ExpressionAnalyzer {
+class Ll1ExpressionAnalyzer {
  public:
-  using Self = LL1ExpressionAnalyzer;
+  using Self = Ll1ExpressionAnalyzer;
   using Exception = ParsingException;
 
   bool Parse(Lexer* lexer, Expression::Ptr* expression, Exception* exception);
@@ -23,6 +23,8 @@ class LL1ExpressionAnalyzer {
 
   bool ParseExpression(Lexer* lexer, Expression::Ptr* expression,
       Exception* exception);
+  bool ParseEqualExpression(Lexer* lexer, Expression::Ptr* expression,
+      Exception* exception);
   bool ParseCommaExpression(Lexer* lexer, Expression::Ptr* expression,
       Exception* exception);
   bool ParsePlusExpression(Lexer* lexer, Expression::Ptr* expression,
@@ -30,7 +32,15 @@ class LL1ExpressionAnalyzer {
   bool ParseMultiplyExpression(Lexer* lexer, Expression::Ptr* expression,
       Exception* exception);
 
-  bool ParseBinaryExpression(
+  bool ParseBinaryExpressionFromLeftToRight(
+      ParsingFunction child_function,
+      std::initializer_list<Token::Type> token_types,
+      std::initializer_list<BinaryExpression::Operator> operator_types,
+      Lexer* lexer,
+      Expression::Ptr* expression,
+      Exception* exception);
+
+  bool ParseBinaryExpressionFromRightToLeft(
       ParsingFunction child_function,
       std::initializer_list<Token::Type> token_types,
       std::initializer_list<BinaryExpression::Operator> operator_types,
@@ -48,4 +58,4 @@ class LL1ExpressionAnalyzer {
 
 }  // namespace vegetable_script
 
-#endif  // VEGETABLE_SCRIPT_CORE_PARSING_LL1_EXPRESSION_ANALYZER_H_
+#endif  // VEGETABLE_SCRIPT_CORE_PARSING_Ll1_EXPRESSION_ANALYZER_H_

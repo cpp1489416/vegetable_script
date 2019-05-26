@@ -3,25 +3,40 @@
 
 namespace vegetable_script {
 
-bool LL1ExpressionAnalyzer::Parse(
+bool Ll1ExpressionAnalyzer::Parse(
     Lexer* lexer,
     Expression::Ptr* expression,
-    LL1ExpressionAnalyzer::Exception* exception) {
+    Ll1ExpressionAnalyzer::Exception* exception) {
   return ParseExpression(lexer, expression, exception);
 }
 
-bool LL1ExpressionAnalyzer::ParseExpression(
+bool Ll1ExpressionAnalyzer::ParseExpression(
     Lexer* lexer,
     Expression::Ptr* expression,
-    LL1ExpressionAnalyzer::Exception* exception) {
-  return ParseCommaExpression(lexer, expression, exception);
+    Ll1ExpressionAnalyzer::Exception* exception) {
+  return ParseEqualExpression(lexer, expression, exception);
 }
 
-bool LL1ExpressionAnalyzer::ParseCommaExpression(
+bool Ll1ExpressionAnalyzer::ParseEqualExpression(
     Lexer* lexer,
     Expression::Ptr* expression,
-    LL1ExpressionAnalyzer::Exception* exception) {
-  return ParseBinaryExpression(
+    Ll1ExpressionAnalyzer::Exception* exception) {
+  return ParseBinaryExpressionFromRightToLeft(
+      &Self::ParseCommaExpression, {
+          Token::Type::kOperatorEqual
+      }, {
+          BinaryExpression::Operator::kEqual
+      },
+      lexer,
+      expression,
+      exception);
+}
+
+bool Ll1ExpressionAnalyzer::ParseCommaExpression(
+    Lexer* lexer,
+    Expression::Ptr* expression,
+    Ll1ExpressionAnalyzer::Exception* exception) {
+  return ParseBinaryExpressionFromLeftToRight(
       &Self::ParsePlusExpression, {
           Token::Type::kOperatorComma
       }, {
@@ -32,11 +47,11 @@ bool LL1ExpressionAnalyzer::ParseCommaExpression(
       exception);
 }
 
-bool LL1ExpressionAnalyzer::ParsePlusExpression(
+bool Ll1ExpressionAnalyzer::ParsePlusExpression(
     Lexer* lexer,
     Expression::Ptr* expression,
-    LL1ExpressionAnalyzer::Exception* exception) {
-  return ParseBinaryExpression(
+    Ll1ExpressionAnalyzer::Exception* exception) {
+  return ParseBinaryExpressionFromLeftToRight(
       &Self::ParseMultiplyExpression, {
           Token::Type::kOperatorPlusOrPositive,
           Token::Type::kOperatorMinusOrNegative
@@ -49,11 +64,11 @@ bool LL1ExpressionAnalyzer::ParsePlusExpression(
       exception);
 }
 
-bool LL1ExpressionAnalyzer::ParseMultiplyExpression(
+bool Ll1ExpressionAnalyzer::ParseMultiplyExpression(
     Lexer* lexer,
     Expression::Ptr* expression,
-    LL1ExpressionAnalyzer::Exception* exception) {
-  return ParseBinaryExpression(
+    Ll1ExpressionAnalyzer::Exception* exception) {
+  return ParseBinaryExpressionFromLeftToRight(
       &Self::ParseUnaryExpression, {
           Token::Type::kOperatorMultiply,
           Token::Type::kOperatorDivide
@@ -66,13 +81,13 @@ bool LL1ExpressionAnalyzer::ParseMultiplyExpression(
       exception);
 }
 
-bool LL1ExpressionAnalyzer::ParseBinaryExpression(
-    LL1ExpressionAnalyzer::ParsingFunction child_function,
+bool Ll1ExpressionAnalyzer::ParseBinaryExpressionFromLeftToRight(
+    Ll1ExpressionAnalyzer::ParsingFunction child_function,
     std::initializer_list<Token::Type> token_types,
     std::initializer_list<BinaryExpression::Operator> operator_types,
     Lexer* lexer,
     Expression::Ptr* expression,
-    LL1ExpressionAnalyzer::Exception* exception) {
+    Ll1ExpressionAnalyzer::Exception* exception) {
   Expression::Ptr ans_expression;
   if (!(this->*child_function)(lexer, &ans_expression, exception)) {
     return false;
@@ -110,10 +125,53 @@ bool LL1ExpressionAnalyzer::ParseBinaryExpression(
   return true;
 }
 
-bool LL1ExpressionAnalyzer::ParseUnaryExpression(
+bool Ll1ExpressionAnalyzer::ParseBinaryExpressionFromRightToLeft(
+    ParsingFunction child_function,
+    std::initializer_list<Token::Type> token_types,
+    std::initializer_list<BinaryExpression::Operator> operator_types,
     Lexer* lexer,
     Expression::Ptr* expression,
-    LL1ExpressionAnalyzer::Exception* exception) {
+    Ll1ExpressionAnalyzer::Exception* exception) {
+  Expression::Ptr left_expression;
+  if (!(this->*child_function)(lexer, &left_expression, exception)) {
+    return false;
+  }
+  auto token_type_iterator = token_types.begin();
+  auto operator_types_iterator = operator_types.begin();
+  for (; token_type_iterator != token_types.end();
+      ++token_type_iterator, ++operator_types_iterator) {
+    Token token;
+    if (!lexer->LookCurrentWithoutComments(&token, exception)) {
+      return false;
+    }
+    if (token.type.contains(*token_type_iterator)) {
+      lexer->MoveNext();
+      auto ans_expression = std::make_shared<BinaryExpression>();
+      ans_expression->left_expression = left_expression;
+      ans_expression->operatorr = *operator_types_iterator;
+      if (!ParseBinaryExpressionFromRightToLeft(
+          child_function,
+          token_types,
+          operator_types,
+          lexer,
+          &ans_expression->right_expression,
+          exception)) {
+        return false;
+      }
+      ans_expression->left_expression->parent = ans_expression;
+      ans_expression->right_expression->parent = ans_expression;
+      *expression = ans_expression;
+      return true;
+    }
+  }
+  *expression = left_expression;
+  return true;
+}
+
+bool Ll1ExpressionAnalyzer::ParseUnaryExpression(
+    Lexer* lexer,
+    Expression::Ptr* expression,
+    Ll1ExpressionAnalyzer::Exception* exception) {
   Token::Type::Type_ token_types[] = {
       Token::Type::kOperatorPlusOrPositive,
       Token::Type::kOperatorMinusOrNegative
@@ -143,10 +201,10 @@ bool LL1ExpressionAnalyzer::ParseUnaryExpression(
   return ParseSingleExpression(lexer, expression, exception);
 }
 
-bool LL1ExpressionAnalyzer::ParseSingleExpression(
+bool Ll1ExpressionAnalyzer::ParseSingleExpression(
     Lexer* lexer,
     Expression::Ptr* expression,
-    LL1ExpressionAnalyzer::Exception* exception) {
+    Ll1ExpressionAnalyzer::Exception* exception) {
   Token token;
   if (!lexer->LookCurrentWithoutComments(&token, exception)) {
     return false;
@@ -212,13 +270,13 @@ bool LL1ExpressionAnalyzer::ParseSingleExpression(
   }
 }
 
-bool LL1ExpressionAnalyzer::ParseFunctionInvokeExpression(
+bool Ll1ExpressionAnalyzer::ParseFunctionInvokeExpression(
     Lexer* lexer,
     Expression::Ptr* expression,
-    LL1ExpressionAnalyzer::Exception* exception) {
+    Ll1ExpressionAnalyzer::Exception* exception) {
   auto ans_expression = std::make_shared<FunctionInvokeExpression>();
   Token token;
-  if (!lexer->LookCurrent(&token, exception)) {
+  if (!lexer->LookCurrentWithoutComments(&token, exception)) {
     return false;
   }
   ans_expression->function_name = token.string;

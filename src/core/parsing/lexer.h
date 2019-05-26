@@ -40,6 +40,8 @@ class Lexer {
   void SkipBlanks();
   void PushBackToken(const std::string& string, const Token::Type& type,
       int row, int column);
+  void PushBackIdentifierOrKeyword(const std::string& string,
+      int row, int column);
 
   SourceProvider::Ptr source_provider_;
   Token::Deque tokens_;

@@ -21,6 +21,10 @@ class AstStringer : public IVisitor {
 
   void Visit(FunctionInvokeExpression* node) override;
 
+  void Visit(ExpressionStatement* node) override;
+
+  void Visit(BlockStatement* node) override;
+
   std::string Result() {
     return stream_.str();
   }

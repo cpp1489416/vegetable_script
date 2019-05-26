@@ -2,6 +2,7 @@
 #include "../core/visitor/ast_stringer.h"
 #include "../core/parsing/all.h"
 #include "../core/parsing/ll1_expression_analyzer.h"
+#include "../core/parsing/ll1_statement_analyzer.h"
 
 void EpochStatementFile(const std::string& path) {
   using namespace vegetable_script;  // NOLINT
@@ -27,16 +28,16 @@ void EpochStatementFile(const std::string& path) {
   source_provider = std::make_shared<SourceProvider>(
       SourceProvider::FromFile(path));
   Lexer lexer = Lexer(source_provider);
-  LL1ExpressionAnalyzer expression_analyzer;
+  Ll1StatementAnalyzer statement_analyzer;
   for (int i = 0; true; ++i) {
-    Expression::Ptr expression;
+    Statement::Ptr statement;
     ParsingException exception;
-    if (!expression_analyzer.Parse(&lexer, &expression, &exception)) {
+    if (!statement_analyzer.Parse(&lexer, &statement, &exception)) {
       std::cout << exception.ToString("errors when parsing") << std::endl;
       break;
     }
     AstStringer ast_stringer;
-    expression->Accept(&ast_stringer);
+    statement->Accept(&ast_stringer);
     std::cout << i << "th expression: " << ast_stringer.Result() << std::endl;
   }
 

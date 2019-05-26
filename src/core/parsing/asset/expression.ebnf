@@ -1,6 +1,13 @@
 
-expression::=
-    plus_expression;
+expression ::=
+    equal_expression;
+
+equal_expression ::=
+    comma_expression,
+    comma_expression "=" comma_expression;
+
+comma_expression ::=
+    multiply_expression ["," multiply_expression];
 
 plus_expression ::=
     multiply_expression "+" plus_expression,
@@ -26,3 +33,13 @@ single_expression ::=
 
 argument_list ::=
     "" | expression { "," expression };
+
+statement ::=
+    expression ";",
+    block_statement,
+    "if" "(" expression ")" statement { "else" statement },
+    "while" "(" expression ")" statement,
+    "for" "(" statement expression ";" expression ")" statement;
+
+block_statement ::=
+    "{" [statement] "}";

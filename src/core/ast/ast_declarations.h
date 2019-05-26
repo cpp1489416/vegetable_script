@@ -22,6 +22,7 @@ struct BinaryExpression;
 
 // statements
 struct Statement;
+struct EmptyStatement;
 struct ExpressionStatement;
 struct BlockStatement;
 struct IfStatement;
@@ -69,6 +70,10 @@ struct IVisitor {
   virtual void Visit(UnaryExpression* node) {}
 
   virtual void Visit(BinaryExpression* node) {}
+
+  virtual void Visit(Statement* node) {}
+
+  virtual void Visit(EmptyStatement* node) {}
 
   virtual void Visit(ExpressionStatement* node) {}
 
