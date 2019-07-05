@@ -148,7 +148,7 @@ bool Lexer::Epoch0(ParsingException* exception) {
   char c = source_provider_->LookCurrent();
   source_provider_->MoveNext();
   string += c;
-  int status;
+  int status = -1;
   switch (c) {
     case ';':
       PushBackToken(";", Token::Type::kSemicolon, row, column);
@@ -230,33 +230,92 @@ bool Lexer::Epoch0(ParsingException* exception) {
           row,
           column);
       return true;
-    case '<':
-      PushBackToken(
-          "<",
-          Token::Type() <<
-              Token::Type::kOperator <<
-              Token::Type::kOperatorLesser,
-          row,
-          column);
-      return true;
-    case '>':
-      PushBackToken(
-          ">",
-          Token::Type() <<
-              Token::Type::kOperator <<
-              Token::Type::kOperatorGreater,
-          row,
-          column);
-      return true;
-    case '=':
-      PushBackToken(
-          "=",
-          Token::Type() <<
-              Token::Type::kOperator <<
-              Token::Type::kOperatorEqual,
-          row,
-          column);
-      return true;
+    case '<': {
+      if (source_provider_->LookCurrent() == '=') {
+        source_provider_->MoveNext();
+        PushBackToken(
+            "<=",
+            Token::Type() <<
+                Token::Type::kOperator <<
+                Token::Type::kOperatorLesserEqual,
+            row,
+            column);
+        return true;
+      } else {
+        PushBackToken(
+            "<",
+            Token::Type() <<
+                Token::Type::kOperator <<
+                Token::Type::kOperatorLesser,
+            row,
+            column);
+        return true;
+      }
+    }
+    case '>': {
+      if (source_provider_->LookCurrent() == '=') {
+        source_provider_->MoveNext();
+        PushBackToken(
+            ">=",
+            Token::Type() <<
+                Token::Type::kOperator <<
+                Token::Type::kOperatorGreaterEqual,
+            row,
+            column);
+        return true;
+      } else {
+        PushBackToken(
+            ">",
+            Token::Type() <<
+                Token::Type::kOperator <<
+                Token::Type::kOperatorGreater,
+            row,
+            column);
+        return true;
+      }
+    }
+    case '=': {
+      if (source_provider_->LookCurrent() == '=') {
+        std::cout << "found" << std::endl;
+        source_provider_->MoveNext();
+        PushBackToken(
+            "==",
+            Token::Type() << Token::Type::kOperator <<
+                Token::Type::kOperatorEqual,
+            row,
+            column);
+        return true;
+      } else {
+        PushBackToken(
+            "=",
+            Token::Type() <<
+                Token::Type::kOperator <<
+                Token::Type::kOperatorAssign,
+            row,
+            column);
+        return true;
+      }
+    }
+    case '!': {
+      if (source_provider_->LookCurrent() == '=') {
+        source_provider_->MoveNext();
+        PushBackToken(
+            "!=",
+            Token::Type() << Token::Type::kOperator <<
+                Token::Type::kOperatorNotEqual,
+            row,
+            column);
+        return true;
+      } else {
+        PushBackToken(
+            "!",
+            Token::Type() << Token::Type::kOperator <<
+                Token::Type::kOperatorNot,
+            row,
+            column);
+        return true;
+      }
+    }
     case '\0':
       PushBackToken("\\0", Token::Type::kEnd, row, column);
       return true;
@@ -604,7 +663,8 @@ void Lexer::PushBackIdentifierOrKeyword(const std::string& string,
     { "if", Token::Type::kKeywordIf },
     { "else", Token::Type::kKeywordElse },
     { "while", Token::Type::kKeywordWhile },
-    { "for", Token::Type::kKeywordFor }
+    { "for", Token::Type::kKeywordFor },
+    { "func", Token::Type::kKeywordFunc },
   };
   if (keywords.count(string) == 0) {
     tokens_.push_back(Token {string, Token::Type::kIdentifier, row, column});

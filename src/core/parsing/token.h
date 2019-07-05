@@ -26,11 +26,13 @@ XC_MULTI_ENUM(
   kNumber, kNumberFloat, kNumberInteger,
 
   kOperator,
-  kOperatorPlusOrPositive, kOperatorMinusOrNegative,
+  kOperatorPlusOrPositive, kOperatorMinusOrNegative, kOperatorNot,
   kOperatorMultiply, kOperatorDivide,
-  kOperatorEqual,
-  kOperatorAnd, kOperatorOr,
+  kOperatorEqual, kOperatorNotEqual,
   kOperatorGreater, kOperatorLesser,
+  kOperatorGreaterEqual, kOperatorLesserEqual,
+  kOperatorAssign,
+  kOperatorAnd, kOperatorOr,
   kOperatorShiftLeft, kOperatorShitRight,
   kOperatorComma,
 
@@ -38,7 +40,7 @@ XC_MULTI_ENUM(
   kString,
 
   kKeyword,
-  kKeywordIf, kKeywordElse, kKeywordWhile, kKeywordFor,
+  kKeywordIf, kKeywordElse, kKeywordWhile, kKeywordFor, kKeywordFunc,
 
   kIdentifier
 )

@@ -23,9 +23,15 @@ class Ll1ExpressionAnalyzer {
 
   bool ParseExpression(Lexer* lexer, Expression::Ptr* expression,
       Exception* exception);
-  bool ParseEqualExpression(Lexer* lexer, Expression::Ptr* expression,
-      Exception* exception);
   bool ParseCommaExpression(Lexer* lexer, Expression::Ptr* expression,
+      Exception* exception);
+  bool ParseAssignExpression(Lexer* lexer, Expression::Ptr* expression,
+      Exception* exception);
+  bool ParseOrExpression(Lexer* lexer, Expression::Ptr* expression,
+      Exception* exception);
+  bool ParseAndExpression(Lexer* lexer, Expression::Ptr* expression,
+      Exception* exception);
+  bool ParseEqualExpression(Lexer* lexer, Expression::Ptr* expression,
       Exception* exception);
   bool ParsePlusExpression(Lexer* lexer, Expression::Ptr* expression,
       Exception* exception);

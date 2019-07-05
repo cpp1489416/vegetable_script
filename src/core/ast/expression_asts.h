@@ -70,7 +70,8 @@ struct UnaryExpression: public Expression {
   XC_MULTI_ENUM(
     Operator,
     kPositive,
-    kNegative
+    kNegative,
+    kNot
   )
 
   void Accept(IVisitor* visitor) override { visitor->Visit(this); }
@@ -88,7 +89,13 @@ struct BinaryExpression : public Expression {
     kDivide,  // /
     kGreater,  // >
     kLesser,  // <
+    kGreaterEqual,
+    kLesserEqual,
     kEqual,
+    kNotEqual,
+    kAssign,
+    kAnd,
+    kOr,
     kComma,
   )
 

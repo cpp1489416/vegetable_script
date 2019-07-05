@@ -27,6 +27,10 @@ class AstStringer : public IVisitor {
 
   void Visit(IfStatement* node) override;
 
+  void Visit(WhileStatement* node) override;
+
+  void Visit(ForStatement* node) override;
+
   std::string Result() {
     return stream_.str();
   }

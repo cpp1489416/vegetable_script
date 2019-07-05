@@ -14,22 +14,7 @@ bool Ll1ExpressionAnalyzer::ParseExpression(
     Lexer* lexer,
     Expression::Ptr* expression,
     Ll1ExpressionAnalyzer::Exception* exception) {
-  return ParseEqualExpression(lexer, expression, exception);
-}
-
-bool Ll1ExpressionAnalyzer::ParseEqualExpression(
-    Lexer* lexer,
-    Expression::Ptr* expression,
-    Ll1ExpressionAnalyzer::Exception* exception) {
-  return ParseBinaryExpressionFromRightToLeft(
-      &Self::ParseCommaExpression, {
-          Token::Type::kOperatorEqual
-      }, {
-          BinaryExpression::Operator::kEqual
-      },
-      lexer,
-      expression,
-      exception);
+  return ParseCommaExpression(lexer, expression, exception);
 }
 
 bool Ll1ExpressionAnalyzer::ParseCommaExpression(
@@ -37,10 +22,80 @@ bool Ll1ExpressionAnalyzer::ParseCommaExpression(
     Expression::Ptr* expression,
     Ll1ExpressionAnalyzer::Exception* exception) {
   return ParseBinaryExpressionFromLeftToRight(
-      &Self::ParsePlusExpression, {
+      &Self::ParseAssignExpression, {
           Token::Type::kOperatorComma
       }, {
           BinaryExpression::Operator::kComma
+      },
+      lexer,
+      expression,
+      exception);
+}
+
+bool Ll1ExpressionAnalyzer::ParseAssignExpression(
+    Lexer* lexer,
+    Expression::Ptr* expression,
+    Ll1ExpressionAnalyzer::Exception* exception) {
+  return ParseBinaryExpressionFromRightToLeft(
+      &Self::ParseOrExpression, {
+          Token::Type::kOperatorAssign
+      }, {
+          BinaryExpression::Operator::kAssign
+      },
+      lexer,
+      expression,
+      exception);
+}
+
+bool Ll1ExpressionAnalyzer::ParseOrExpression(
+    Lexer* lexer,
+    Expression::Ptr* expression,
+    Ll1ExpressionAnalyzer::Exception* exception) {
+  return ParseBinaryExpressionFromRightToLeft(
+      &Self::ParseAndExpression, {
+          Token::Type::kOperatorOr
+      }, {
+          BinaryExpression::Operator::kOr
+      },
+      lexer,
+      expression,
+      exception);
+}
+
+bool Ll1ExpressionAnalyzer::ParseAndExpression(
+    Lexer* lexer,
+    Expression::Ptr* expression,
+    Ll1ExpressionAnalyzer::Exception* exception) {
+  return ParseBinaryExpressionFromLeftToRight(
+      &Self::ParseEqualExpression, {
+          Token::Type::kOperatorAnd,
+      }, {
+          BinaryExpression::Operator::kAnd,
+      },
+      lexer,
+      expression,
+      exception);
+}
+
+bool Ll1ExpressionAnalyzer::ParseEqualExpression(
+    Lexer* lexer,
+    Expression::Ptr* expression,
+    Ll1ExpressionAnalyzer::Exception* exception) {
+  return ParseBinaryExpressionFromLeftToRight(
+      &Self::ParsePlusExpression, {
+          Token::Type::kOperatorEqual,
+          Token::Type::kOperatorNotEqual,
+          Token::Type::kOperatorGreater,
+          Token::Type::kOperatorGreaterEqual,
+          Token::Type::kOperatorLesser,
+          Token::Type::kOperatorLesserEqual,
+      }, {
+          BinaryExpression::Operator::kEqual,
+          BinaryExpression::Operator::kNotEqual,
+          BinaryExpression::Operator::kGreater,
+          BinaryExpression::Operator::kGreaterEqual,
+          BinaryExpression::Operator::kLesser,
+          BinaryExpression::Operator::kLesserEqual,
       },
       lexer,
       expression,
@@ -174,11 +229,13 @@ bool Ll1ExpressionAnalyzer::ParseUnaryExpression(
     Ll1ExpressionAnalyzer::Exception* exception) {
   Token::Type::Type_ token_types[] = {
       Token::Type::kOperatorPlusOrPositive,
-      Token::Type::kOperatorMinusOrNegative
+      Token::Type::kOperatorMinusOrNegative,
+      Token::Type::kOperatorNot
   };
   UnaryExpression::Operator unary_operator_types[] = {
       UnaryExpression::Operator::kPositive,
-      UnaryExpression::Operator::kNegative
+      UnaryExpression::Operator::kNegative,
+      UnaryExpression::Operator::kNot,
   };
   Token token;
   if (!lexer->LookCurrentWithoutComments(&token, exception)) {
@@ -262,7 +319,7 @@ bool Ll1ExpressionAnalyzer::ParseSingleExpression(
       return true;
     }
   } else {
-    *exception = Exception {
+    *exception = {
       "unknown token: \"" + token.string + "\"",
       token.row, token.column
     };
@@ -286,7 +343,7 @@ bool Ll1ExpressionAnalyzer::ParseFunctionInvokeExpression(
   }
   if (!token.MatchType({Token::Type::kBracketSmall,
       Token::Type::kBracketLeft})) {
-    *exception = Exception {
+    *exception = {
       "a function invoke expression must have a \"(\" after function name",
       token.row, token.column
     };
@@ -307,7 +364,7 @@ bool Ll1ExpressionAnalyzer::ParseFunctionInvokeExpression(
       return false;
     }
     Expression::Ptr argument;
-    if (!ParsePlusExpression(lexer, &argument, exception)) {
+    if (!ParseAssignExpression(lexer, &argument, exception)) {
       return false;
     }
     ans_expression->arguments.push_back(argument);

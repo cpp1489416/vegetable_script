@@ -1,6 +1,5 @@
 
 #include <iostream>
-#include <vegetable_script/mul.h>
 #include <common/all.h>
 #include <parsing/all.h>
 #include <set>
@@ -48,3 +47,4 @@ XC_TEST_CASE(LEXER, false) {
     OutputTokens(&lexer);
   }
 }
+

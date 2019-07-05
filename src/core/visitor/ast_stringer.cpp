@@ -22,8 +22,10 @@ void AstStringer::Visit(UnaryExpression* node) {
   std::string c;
   if (node->operatorr == UnaryExpression::Operator::kNegative) {
     c = "-";
+  } else if (node->operatorr == UnaryExpression::Operator::kPositive) {
+    c = '+';
   } else {
-    c = "+";
+    c = "!";
   }
   stream_ << c;
   node->operand_expression->Accept(this);
@@ -93,6 +95,23 @@ void AstStringer::Visit(IfStatement* node) {
   }
 }
 
+void AstStringer::Visit(WhileStatement* node) {
+  stream_ << "while (";
+  node->condition_expression->Accept(this);
+  stream_ << ")";
+  node->body_statement->Accept(this);
+}
+
+void AstStringer::Visit(ForStatement* node) {
+  stream_ << "for (";
+  node->begin_statement->Accept(this);
+  node->condition_expression->Accept(this);
+  stream_ << "; ";
+  node->after_expression->Accept(this);
+  stream_ << ")";
+  node->body_statement->Accept(this);
+
+}
 /*
 void ASTStringer::Visit(NumberExpression* node) {
     mStream << node->mValue;

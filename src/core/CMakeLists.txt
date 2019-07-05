@@ -3,7 +3,6 @@ project(vegetable-script)
 add_definitions(-std=c++11)
 
 set(src_list
-    mul.cpp
     common/string_util.cpp
     common/file_util.cpp
     parsing/token.cpp

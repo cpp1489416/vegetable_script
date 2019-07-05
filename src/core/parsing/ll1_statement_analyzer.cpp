@@ -140,7 +140,7 @@ bool Ll1StatementAnalyzer::ParseIfStatement(
   }
   if (token.type != Token::Type::kKeywordIf) {
     *exception = {
-      "if statement must begin with\"if\"",
+      "if statement must begin with \"if\"",
       token.row,
       token.column
     };
@@ -274,6 +274,7 @@ bool Ll1StatementAnalyzer::ParseForStatement(
     };
     return false;
   }
+  lexer->MoveNext();
   auto for_statement = std::make_shared<ForStatement>();
   if (!ParseStatement(lexer, &for_statement->begin_statement, exception)) {
     return false;
@@ -290,6 +291,7 @@ bool Ll1StatementAnalyzer::ParseForStatement(
     };
     return false;
   }
+  lexer->MoveNext();
   if (!expression_analyzer_.Parse(lexer,
       &for_statement->after_expression, exception)) {
     return false;
@@ -315,4 +317,3 @@ bool Ll1StatementAnalyzer::ParseForStatement(
 }
 
 }  // namespace vegetable_script
-

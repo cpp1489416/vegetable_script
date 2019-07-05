@@ -8,6 +8,7 @@
 #include "./ast_declarations.h"
 #include "./expression_asts.h"
 #include "./statement_asts.h"
+#include "./definition_asts.h"
 
 namespace vegetable_script {
 
