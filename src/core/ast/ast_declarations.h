@@ -55,6 +55,8 @@ struct BuiltInTypeSymbol;
 
 struct IVisitor {
  public:
+  virtual void Visit(Ast* node) {}
+
   virtual void Visit(IdentifierExpression* node) {}
 
   virtual void Visit(StringExpression* node) {}
@@ -66,6 +68,8 @@ struct IVisitor {
   virtual void Visit(FloatExpression* node) {}
 
   virtual void Visit(EmptyExpression* node) {}
+
+  virtual void Visit(FunctionInvokeExpression* node) {}
 
   virtual void Visit(UnaryExpression* node) {}
 
@@ -84,8 +88,6 @@ struct IVisitor {
   virtual void Visit(WhileStatement* node) {}
 
   virtual void Visit(ForStatement* node) {}
-
-  virtual void Visit(FunctionInvokeExpression* node) {}
 
   virtual void Visit(VariableDefinition* node) {}
 

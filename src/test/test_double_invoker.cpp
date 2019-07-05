@@ -1,8 +1,14 @@
 #include <iostream>
+#include <typeinfo>
 #include "../core/visitor/ast_stringer.h"
 #include "../core/parsing/all.h"
 #include "../core/parsing/ll1_expression_analyzer.h"
 #include "../core/parsing/ll1_statement_analyzer.h"
+#include "../core/running/scope_definition_filler.h"
+#include "../core/running/scope.h"
+#include "../core/running/scope_stack.h"
+#include "../core/running/execute/double_expression_invoker.h"
+#include "../core/running/execute/double_statement_invoker.h"
 
 namespace {
 void EpochStatementFile(const std::string& path) {
@@ -39,17 +45,26 @@ void EpochStatementFile(const std::string& path) {
       break;
     }
     block_statement->statements.push_back(statement);
+
     AstStringer ast_stringer;
     statement->Accept(&ast_stringer);
-    std::cout << i << "th expression: " << ast_stringer.Result() << std::endl;
+    std::cout << i << "th expression: " << ast_stringer.Result() << typeid(*statement.get()).name() << std::endl;
   }
 
-  std::cout << block_statement->statements.size();
+  std::cout << "start to invoke" << std::endl;
+  ScopeStack scope_stack;
+  scope_stack.PushScope();
+  ScopeDefinitionFiller(block_statement.get(), scope_stack.scope().get());
+  DoubleStatementInvoker double_statement_invoker(&scope_stack);
+  block_statement->Accept(&double_statement_invoker);
+  if (!double_statement_invoker.success()) {
+    std::cout << double_statement_invoker.exception().status << std::endl;
+  }
 }
 }  // namespace
 
 
-XC_TEST_CASE(statemenet_analyzer, false) {
+XC_TEST_CASE(double_invoker, true) {
   using namespace vegetable_script;  // NOLINT
   std::string file_directory = xc::FileUtil::GetDirectory(__FILE__) + "sample/";
   std::cout << file_directory << std::endl;

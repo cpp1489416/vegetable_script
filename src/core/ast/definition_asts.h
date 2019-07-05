@@ -12,6 +12,8 @@ namespace vegetable_script {
 
 struct Definition : public Statement {
   using Ptr = std::shared_ptr<Definition>;
+
+  std::string name;
 };
 
 struct VariableDefinition : public Definition {
@@ -19,10 +21,7 @@ struct VariableDefinition : public Definition {
 
   void Accept(IVisitor* visitor) override { visitor->Visit(this); }
 
-  std::string name;
   Expression::Ptr value_expression;
-  Pointer<TypeReference> type_reference;
-  Pointer<TypeAst> type;
 };
 
 /*
@@ -40,7 +39,6 @@ struct FunctionDefinition : public Definition {
 
   void Accept(IVisitor* visitor) override { visitor->Visit(this); }
 
-  std::string name;
   ParameterList parameter_list;
   BlockStatement::Ptr block_statement;
 };

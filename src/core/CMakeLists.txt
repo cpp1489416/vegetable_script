@@ -11,6 +11,12 @@ set(src_list
     parsing/lexer.cpp
     parsing/ll1_expression_analyzer.cpp
     parsing/ll1_statement_analyzer.cpp
+    parsing/ll1_definition_analyzer.cpp
+    running/scope.cpp
+    running/scope_stack.cpp
+    running/scope_definition_filler.cpp
+    running/execute/double_expression_invoker.cpp
+    running/execute/double_statement_invoker.cpp
     visitor/ast_stringer.cpp)
 
 add_library(vegetable-script-core STATIC ${src_list})

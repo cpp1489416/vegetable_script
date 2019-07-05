@@ -7,7 +7,6 @@
 #include "./lexer.h"
 #include "../ast/core_asts.h"
 #include "./parsing_exception.h"
-#include "./ll1_expression_analyzer.h"
 
 namespace vegetable_script {
 
@@ -21,11 +20,9 @@ class Ll1DefinitionAnalyzer{
  private:
   bool ParseDefinition(Lexer* lexer, Definition::Ptr* statement, Exception* exception);
 
-  bool ParseFunctionDefinition(Lexer* lexer, ExpressionStatement::Ptr* statement, Exception* exception);
+  bool ParseFunctionDefinition(Lexer* lexer, FunctionDefinition::Ptr* statement, Exception* exception);
 
-  bool ParseVariableDefinition(Lexer* lexer, BlockStatement::Ptr* statement, Exception* exception);
-
-  Ll1ExpressionAnalyzer expression_analyzer_;
+  bool ParseVariableDefinition(Lexer* lexer, VariableDefinition::Ptr* statement, Exception* exception);
 };
 
 }  // namespace vegetable_script

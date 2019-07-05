@@ -60,11 +60,11 @@ void AstStringer::Visit(BinaryExpression* node) {
 
 void AstStringer::Visit(FunctionInvokeExpression* node) {
   stream_ << node->function_name << "(";
-  if (node->arguments.size() != 0) {
-    node->arguments[0]->Accept(this);
-    for (int i = 1; i < node->arguments.size(); ++i) {
+  if (node->argument_list.size() != 0) {
+    node->argument_list[0]->Accept(this);
+    for (int i = 1; i < node->argument_list.size(); ++i) {
       stream_ << ", ";
-      node->arguments[i]->Accept(this);
+      node->argument_list[i]->Accept(this);
     }
   }
 
@@ -111,6 +111,15 @@ void AstStringer::Visit(ForStatement* node) {
   stream_ << ")";
   node->body_statement->Accept(this);
 
+}
+
+void AstStringer::Visit(FunctionDefinition* node) {
+  stream_ << "func " << node->name << "(";
+  for (auto v : node->parameter_list) {
+    stream_ << v->name << ", ";
+  }
+  stream_ << ")";
+  node->block_statement->Accept(this);
 }
 /*
 void ASTStringer::Visit(NumberExpression* node) {

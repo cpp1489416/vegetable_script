@@ -40,7 +40,7 @@ XC_MULTI_ENUM(
   kString,
 
   kKeyword,
-  kKeywordIf, kKeywordElse, kKeywordWhile, kKeywordFor, kKeywordFunc,
+  kKeywordIf, kKeywordElse, kKeywordWhile, kKeywordFor, kKeywordFunc, kKeywordVar,
 
   kIdentifier
 )

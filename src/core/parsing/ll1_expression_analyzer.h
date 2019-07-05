@@ -18,25 +18,16 @@ class Ll1ExpressionAnalyzer {
   bool Parse(Lexer* lexer, Expression::Ptr* expression, Exception* exception);
 
  private:
-  using ParsingFunction = bool (Self::*)(Lexer* lexer,
-      Expression::Ptr* expression, Exception* exception);
+  using ParsingFunction = bool (Self::*)(Lexer* lexer, Expression::Ptr* expression, Exception* exception);
 
-  bool ParseExpression(Lexer* lexer, Expression::Ptr* expression,
-      Exception* exception);
-  bool ParseCommaExpression(Lexer* lexer, Expression::Ptr* expression,
-      Exception* exception);
-  bool ParseAssignExpression(Lexer* lexer, Expression::Ptr* expression,
-      Exception* exception);
-  bool ParseOrExpression(Lexer* lexer, Expression::Ptr* expression,
-      Exception* exception);
-  bool ParseAndExpression(Lexer* lexer, Expression::Ptr* expression,
-      Exception* exception);
-  bool ParseEqualExpression(Lexer* lexer, Expression::Ptr* expression,
-      Exception* exception);
-  bool ParsePlusExpression(Lexer* lexer, Expression::Ptr* expression,
-      Exception* exception);
-  bool ParseMultiplyExpression(Lexer* lexer, Expression::Ptr* expression,
-      Exception* exception);
+  bool ParseExpression(Lexer* lexer, Expression::Ptr* expression, Exception* exception);
+  bool ParseCommaExpression(Lexer* lexer, Expression::Ptr* expression, Exception* exception);
+  bool ParseAssignExpression(Lexer* lexer, Expression::Ptr* expression, Exception* exception);
+  bool ParseOrExpression(Lexer* lexer, Expression::Ptr* expression, Exception* exception);
+  bool ParseAndExpression(Lexer* lexer, Expression::Ptr* expression, Exception* exception);
+  bool ParseEqualExpression(Lexer* lexer, Expression::Ptr* expression, Exception* exception);
+  bool ParsePlusExpression(Lexer* lexer, Expression::Ptr* expression, Exception* exception);
+  bool ParseMultiplyExpression(Lexer* lexer, Expression::Ptr* expression, Exception* exception);
 
   bool ParseBinaryExpressionFromLeftToRight(
       ParsingFunction child_function,
@@ -54,12 +45,9 @@ class Ll1ExpressionAnalyzer {
       Expression::Ptr* expression,
       Exception* exception);
 
-  bool ParseUnaryExpression(Lexer* lexer, Expression::Ptr* expression,
-      Exception* exception);
-  bool ParseSingleExpression(Lexer* lexer, Expression::Ptr* expression,
-      Exception* exception);
-  bool ParseFunctionInvokeExpression(Lexer* lexer, Expression::Ptr* expression,
-      Exception* excetion);
+  bool ParseUnaryExpression(Lexer* lexer, Expression::Ptr* expression, Exception* exception);
+  bool ParseSingleExpression(Lexer* lexer, Expression::Ptr* expression, Exception* exception);
+  bool ParseFunctionInvokeExpression(Lexer* lexer, Expression::Ptr* expression, Exception* excetion);
 };
 
 }  // namespace vegetable_script

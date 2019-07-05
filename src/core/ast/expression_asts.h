@@ -12,6 +12,8 @@ namespace vegetable_script  {
 struct Expression : public Ast {
   using Ptr = std::shared_ptr<Expression>;
   using WeakPtr = std::weak_ptr<Expression>;
+
+  void Accept(IVisitor* visitor) override { visitor->Visit(this); }
 };
 
 struct IdentifierExpression : public Expression {
@@ -113,7 +115,7 @@ struct FunctionInvokeExpression : public Expression {
   void Accept(IVisitor* visitor) override { visitor->Visit(this); }
 
   std::string function_name;
-  ArgumentList arguments;
+  ArgumentList argument_list;
 };
 
 }  // namespace vegetable_script

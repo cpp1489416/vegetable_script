@@ -367,7 +367,7 @@ bool Ll1ExpressionAnalyzer::ParseFunctionInvokeExpression(
     if (!ParseAssignExpression(lexer, &argument, exception)) {
       return false;
     }
-    ans_expression->arguments.push_back(argument);
+    ans_expression->argument_list.push_back(argument);
     if (!lexer->LookCurrentWithoutComments(&token, exception)) {
       return false;
     }

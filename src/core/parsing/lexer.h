@@ -28,20 +28,16 @@ class Lexer {
   bool LookAhead(Token* token, ParsingException* exception);
   bool LookAheadWithoutComments(Token* token, ParsingException* exception);
   bool LookAhead(size_t more, Token* token, ParsingException* exception);
-  bool LookAheadWithoutComments(size_t more,
-      Token* token, ParsingException* exception);
+  bool LookAheadWithoutComments(size_t more, Token* token, ParsingException* exception);
 
  private:
   bool Epoch(ParsingException* exception);
   bool Epoch0(ParsingException* exception);
-  bool EpochElse(int status, int row, int column,
-      std::string* string, ParsingException* exception);
+  bool EpochElse(int status, int row, int column, std::string* string, ParsingException* exception);
 
   void SkipBlanks();
-  void PushBackToken(const std::string& string, const Token::Type& type,
-      int row, int column);
-  void PushBackIdentifierOrKeyword(const std::string& string,
-      int row, int column);
+  void PushBackToken(const std::string& string, const Token::Type& type, int row, int column);
+  void PushBackIdentifierOrKeyword(const std::string& string, int row, int column);
 
   SourceProvider::Ptr source_provider_;
   Token::Deque tokens_;

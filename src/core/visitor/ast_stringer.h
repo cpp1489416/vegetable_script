@@ -11,6 +11,10 @@ class AstStringer : public IVisitor {
 
   void Visit(IntegerExpression* node) override;
 
+  void Visit(VariableDefinition* node) override {
+    std::cout << node->name << "eat";
+  }
+
   void Visit(StringExpression* node) override;
 
   void Visit(IdentifierExpression* node) override;
@@ -30,6 +34,8 @@ class AstStringer : public IVisitor {
   void Visit(WhileStatement* node) override;
 
   void Visit(ForStatement* node) override;
+
+  void Visit(FunctionDefinition* node) override;
 
   std::string Result() {
     return stream_.str();

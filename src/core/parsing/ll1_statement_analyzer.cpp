@@ -5,6 +5,7 @@
 #include "./lexer.h"
 #include "../ast/core_asts.h"
 #include "./parsing_exception.h"
+#include "./ll1_definition_analyzer.h"
 
 namespace vegetable_script {
 
@@ -52,6 +53,13 @@ bool Ll1StatementAnalyzer::ParseStatement(
     }
     *statement = for_statement;
     return true;
+  } else if (token.type == Token::Type::kKeywordFunc || token.type == Token::Type::kKeywordVar) {
+    Definition::Ptr definition;
+    if (!ParseDefinitionStatement(lexer, &definition, exception)) {
+      return false;
+    }
+    *statement = definition;
+    return true;
   } else if (token.type == Token::Type::kSemicolon) {
     *statement = std::make_shared<EmptyStatement>();
     lexer->MoveNext();
@@ -91,6 +99,13 @@ bool Ll1StatementAnalyzer::ParseExpressionStatement(
   }
   lexer->MoveNext();
   return true;
+}
+
+bool Ll1StatementAnalyzer::ParseDefinitionStatement(
+    Lexer* lexer,
+    Definition::Ptr* definition,
+    Ll1StatementAnalyzer::Exception* exception) {
+  return Ll1DefinitionAnalyzer().Parse(lexer, definition, exception);
 }
 
 bool Ll1StatementAnalyzer::ParseBlockStatement(
