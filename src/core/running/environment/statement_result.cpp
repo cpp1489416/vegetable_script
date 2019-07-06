@@ -1,4 +1,5 @@
 #include "./statement_result.h"
+#include "./scope_stack.h"
 
 namespace vegetable_script {
 
@@ -203,4 +204,19 @@ bool StatementResult::ToString(std::string* string, Exception* exception) {
   *string = ss.str();
   return true;
 }
+
+bool StatementResult::ToRightValue(ScopeStack* scope_stack, StatementResult* result) {
+  *result = *this;
+  while (true) {
+    if (result->value_type == ValueType::kVoid) {
+      return false;
+    }
+    if (result->value_type != ValueType::kIdentifier) {
+      break;
+    }
+    *result = scope_stack->scope()->GetVariable(result->value.string_value);
+  }
+  return true;
+}
+
 }  // namespace vegetable_script

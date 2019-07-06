@@ -21,6 +21,8 @@ union StatementResultValue {
 
 }  // namespace detail
 
+class ScopeStack;
+
 struct StatementResult {
   using Value = detail::StatementResultValue;
 
@@ -51,12 +53,12 @@ struct StatementResult {
   bool ToInt(int* result, Exception* exception);
   bool ToFloat(double* result, Exception* exception);
   bool ToString(std::string* string, Exception* exception);
+  bool ToRightValue(ScopeStack* scope_stack, StatementResult* result);
 
   ValueType value_type;  // read only
   Value value;
 };
 
 }  // namespace vegetable_script
-
 
 #endif  // RANDOM_BIWZZT7U82ZFOUNWQFFX79HILCQLMLUD4KN9Y7OTUFH7M0YZSQXFLE0CIH
