@@ -81,7 +81,7 @@ bool Ll1DefinitionAnalyzer::ParseFunctionDefinition(
       return false;
     }
     auto parameter = std::make_shared<VariableDefinition>();
-    parameter->string = token.string;
+    parameter->name = token.string;
     (*function_definition)->parameter_list.push_back(parameter);
     lexer->MoveNext();
     if (!lexer->LookCurrent(&token, exception)) {

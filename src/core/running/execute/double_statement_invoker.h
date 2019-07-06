@@ -3,7 +3,8 @@
 
 #include "../../ast/all.h"
 #include "./double_exception.h"
-#include "../scope_stack.h"
+#include "../environment/scope_stack.h"
+#include "../environment/statement_result.h"
 
 namespace vegetable_script {
 
@@ -11,26 +12,18 @@ class DoubleStatementInvoker : public IVisitor {
  public:
   explicit DoubleStatementInvoker(ScopeStack* scope_stack);
 
-  virtual void Visit(ExpressionStatement* node);
-
-  virtual void Visit(BlockStatement* node);
+  void Visit(ExpressionStatement* node) override;
+  void Visit(BlockStatement* node) override;
 
   bool success() { return success_; }
-
   DoubleException exception() { return exception_; }
-
-  double result() { return result_; }
+  StatementResult result() { return result_; }
 
  private:
   bool success_ = true;
-
   DoubleException exception_;
-
-  double result_ = 0.0;
-
+  StatementResult result_;
   ScopeStack* scope_stack_;
-
-  std::string assignable_;
 };
 
 }  // namespace vegetable_script

@@ -1,5 +1,7 @@
 #include "./double_statement_invoker.h"
 #include "./double_expression_invoker.h"
+#include "../environment/scope_stack.h"
+#include "../environment/scope.h"
 #include <iostream>
 
 namespace vegetable_script {
@@ -14,8 +16,7 @@ void DoubleStatementInvoker::Visit(ExpressionStatement* node) {
     success_ = false;
     exception_ = expression_invoker.exception();
   } else {
-    result_ = expression_invoker.result_;
-    std::cout << "result: " << result_ << std::endl;
+    result_ = expression_invoker.result();
   }
 }
 

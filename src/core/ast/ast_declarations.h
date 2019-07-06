@@ -56,53 +56,31 @@ struct BuiltInTypeSymbol;
 struct IVisitor {
  public:
   virtual void Visit(Ast* node) {}
-
   virtual void Visit(IdentifierExpression* node) {}
-
   virtual void Visit(StringExpression* node) {}
-
   virtual void Visit(NumberExpression* node) {}
-
   virtual void Visit(IntegerExpression* node) {}
-
   virtual void Visit(FloatExpression* node) {}
-
   virtual void Visit(EmptyExpression* node) {}
-
   virtual void Visit(FunctionInvokeExpression* node) {}
-
   virtual void Visit(UnaryExpression* node) {}
-
   virtual void Visit(BinaryExpression* node) {}
 
   virtual void Visit(Statement* node) {}
-
   virtual void Visit(EmptyStatement* node) {}
-
   virtual void Visit(ExpressionStatement* node) {}
-
   virtual void Visit(BlockStatement* node) {}
-
   virtual void Visit(IfStatement* node) {}
-
   virtual void Visit(WhileStatement* node) {}
-
   virtual void Visit(ForStatement* node) {}
-
   virtual void Visit(VariableDefinition* node) {}
-
   virtual void Visit(FunctionDefinition* node) {}
 
   virtual void Visit(Program* node) {}
-
   virtual void Visit(VariableSymbol *node) {}
-
   virtual void Visit(ClassTypeSymbol* node) {}
-
   virtual void Visit(BuiltInTypeSymbol* node) {}
-
   virtual void Visit(ParameterDefinition* node) {}
-
   virtual void Visit(FunctionSymbol *node) {}
 };
 

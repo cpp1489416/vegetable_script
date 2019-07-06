@@ -12,9 +12,10 @@ set(src_list
     parsing/ll1_expression_analyzer.cpp
     parsing/ll1_statement_analyzer.cpp
     parsing/ll1_definition_analyzer.cpp
-    running/scope.cpp
-    running/scope_stack.cpp
-    running/scope_definition_filler.cpp
+    running/environment/functions.cpp
+    running/environment/scope_stack.cpp
+    running/environment/scope.cpp
+    running/environment/statement_result.cpp
     running/execute/double_expression_invoker.cpp
     running/execute/double_statement_invoker.cpp
     visitor/ast_stringer.cpp)

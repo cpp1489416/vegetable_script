@@ -4,7 +4,7 @@
 #include <memory>
 #include <map>
 #include <string>
-#include "../ast/all.h"
+#include "../../ast/all.h"
 #include "./scope.h"
 
 namespace vegetable_script {
@@ -16,16 +16,6 @@ class ScopeStack {
   operator Scope::Ptr() { return scope_; }
 
   operator Scope*() { return scope_.get(); }
-
-  void PutDefinition(std::string name, Definition::Ptr definition);
-
-  void PutVariable(std::string name, double value);
-
-  Definition::Ptr GetDefinition(std::string name);
-
-  double GetVariable(std::string name);
-
-  bool VariableExists(std::string name);
 
   void PushScope();
 

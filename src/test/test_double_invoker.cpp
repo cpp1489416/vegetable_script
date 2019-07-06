@@ -1,14 +1,11 @@
 #include <iostream>
 #include <typeinfo>
+#include <string>
 #include "../core/visitor/ast_stringer.h"
 #include "../core/parsing/all.h"
 #include "../core/parsing/ll1_expression_analyzer.h"
 #include "../core/parsing/ll1_statement_analyzer.h"
-#include "../core/running/scope_definition_filler.h"
-#include "../core/running/scope.h"
-#include "../core/running/scope_stack.h"
-#include "../core/running/execute/double_expression_invoker.h"
-#include "../core/running/execute/double_statement_invoker.h"
+#include "../core/running/all.h"
 
 namespace {
 void EpochStatementFile(const std::string& path) {
@@ -53,8 +50,8 @@ void EpochStatementFile(const std::string& path) {
 
   std::cout << "start to invoke" << std::endl;
   ScopeStack scope_stack;
-  scope_stack.PushScope();
-  ScopeDefinitionFiller(block_statement.get(), scope_stack.scope().get());
+  NativeFunctionSymbol::FillScopeStack(&scope_stack);
+  CustomFunctionSymbol::FillScopeStack(block_statement.get(), &scope_stack);
   DoubleStatementInvoker double_statement_invoker(&scope_stack);
   block_statement->Accept(&double_statement_invoker);
   if (!double_statement_invoker.success()) {
