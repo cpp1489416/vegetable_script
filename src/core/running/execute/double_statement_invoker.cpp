@@ -28,6 +28,9 @@ void DoubleStatementInvoker::Visit(BlockStatement* node) {
       success_ = false;
       return;
     }
+    if (result_.type != StatementResult::Type::kNormal) {
+      break;
+    }
   }
   scope_stack_->PopScope();
 }
@@ -40,13 +43,9 @@ void DoubleStatementInvoker::Visit(IfStatement* node) {
     return;
   }
   if (expression_invoker.result().value.bool_value) {
-    scope_stack_->PushScope();
     node->body_statement->Accept(this);
-    scope_stack_->PopScope();
   } else if (node->else_statement) {
-    scope_stack_->PushScope();
     node->else_statement->Accept(this);
-    scope_stack_->PopScope();
   }
 }
 
@@ -59,13 +58,14 @@ void DoubleStatementInvoker::Visit(WhileStatement* node) {
       break;
     }
 
-    scope_stack_->PushScope();
     if (expression_invoker.result().value.bool_value) {
       node->body_statement->Accept(this);
     } else {
       break;
     }
-    scope_stack_->PopScope();
+    if (result_.type == StatementResult::Type::kBreak) {
+      break;
+    }
   }
 }
 
@@ -78,19 +78,26 @@ void DoubleStatementInvoker::Visit(ForStatement* node) {
     if (!expression_invoker.result().value.bool_value) {
       break;
     }
-    scope_stack_->PushScope();
     node->body_statement->Accept(this);
-    scope_stack_->PopScope();
+    if (result_.type == StatementResult::Type::kBreak) {
+      break;
+    }
     node->after_expression->Accept(&expression_invoker);
   }
 
   scope_stack_->PopScope();
 }
 
-void DoubleStatementInvoker::Visit(ContinueStatement* node) {}
+void DoubleStatementInvoker::Visit(ContinueStatement* node) {
+  result_ = StatementResult(StatementResult::Type::kContinue);
+}
 
-void DoubleStatementInvoker::Visit(BreakStatement* node) {}
+void DoubleStatementInvoker::Visit(BreakStatement* node) {
+  result_ = StatementResult(StatementResult::Type::kBreak);
+}
 
-void DoubleStatementInvoker::Visit(ReturnStatement* node) {}
+void DoubleStatementInvoker::Visit(ReturnStatement* node) {
+  result_ = StatementResult(StatementResult::Type::kReturn);
+}
 
 }  // namespace vegetable_script

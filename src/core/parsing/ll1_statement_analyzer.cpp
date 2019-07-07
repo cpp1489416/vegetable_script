@@ -349,7 +349,28 @@ bool Ll1StatementAnalyzer::ParseContinueStatement(
     Lexer* lexer,
     ContinueStatement::Ptr* statement,
     Ll1StatementAnalyzer::Exception* exception) {
-
+  Token token;
+  if (!lexer->LookCurrent(&token, exception)) {
+    return false;
+  }
+  if (token.type != Token::Type::kKeywordContinue) {
+    *exception = {
+      "missing \"continue\"", token.row, token.column
+    };
+    return false;
+  }
+  lexer->MoveNext();
+  if (!lexer->LookCurrent(&token, exception)) {
+    return false;
+  }
+  if (token.type != Token::Type::kSemicolon) {
+    *exception = {
+      "missing \";\"", token.row, token.column
+    };
+    return false;
+  }
+  lexer->MoveNext();
+  *statement = std::make_shared<ContinueStatement>();
   return true;
 }
 
@@ -357,7 +378,28 @@ bool Ll1StatementAnalyzer::ParseBreakStatement(
     Lexer* lexer,
     BreakStatement::Ptr* statement,
     Ll1StatementAnalyzer::Exception* exception) {
-
+  Token token;
+  if (!lexer->LookCurrent(&token, exception)) {
+    return false;
+  }
+  if (token.type != Token::Type::kKeywordBreak) {
+    *exception = {
+      "missing \"break\"", token.row, token.column
+    };
+    return false;
+  }
+  lexer->MoveNext();
+  if (!lexer->LookCurrent(&token, exception)) {
+    return false;
+  }
+  if (token.type != Token::Type::kSemicolon) {
+    *exception = {
+      "missing \";\"", token.row, token.column
+    };
+    return false;
+  }
+  lexer->MoveNext();
+  *statement = std::make_shared<BreakStatement>();
   return true;
 }
 

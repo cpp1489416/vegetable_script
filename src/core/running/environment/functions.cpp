@@ -181,7 +181,9 @@ bool CustomFunctionSymbol::Invoke(
   scope_stack->PushScope();
   for (size_t i = 0; i < argument_list->size(); ++i) {
     std::string name = definition_->parameter_list[i]->name;
-    scope_stack->scope()->PutVariable(name, argument_list->at(i));
+    Argument argument;
+    argument_list->at(i).ToRightValue(scope_stack, &argument);
+    scope_stack->scope()->PutVariable(name, argument);
   }
   DoubleStatementInvoker statement_invoker(scope_stack);
   definition_->block_statement->Accept(&statement_invoker);

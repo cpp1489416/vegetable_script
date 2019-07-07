@@ -5,7 +5,7 @@ namespace vegetable_script {
 StatementResult::StatementResult() : type(Type::kNormal) {}
 
 StatementResult::StatementResult(const ExpressionResult& expression_result)
-    : expression_result(expression_result) {}
+    : expression_result(expression_result), type(Type::kNormal) {}
 
 StatementResult::StatementResult(StatementResult::Type type)
     : type(type) {}

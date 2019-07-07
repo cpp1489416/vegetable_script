@@ -1,3 +1,4 @@
+/*
 print(1);
 print(1.3);
 a = 3;
@@ -9,9 +10,7 @@ func add(a, b) {
 }
 
 print(3.0 / 3);
-a = add(3.0, 3);
-print(a);
-
+a = add(a, 3);
 print(true);
 print(1 <= -1.0 + 1);
 print(true || false);
@@ -50,6 +49,33 @@ while (index < 100) {
     print(index);
 }
 
+print("please input a num: ");
+num = read_int();
+print("u inputed: ", num);
+
 for (j = 0; j <= 1; j = j + 1) {
     print("j: ", j);
 }
+
+*/
+
+func is_prime(n) {
+    print("n in function: ", n);
+    ans = true;
+    for (i = 2; i < n; i = i + 1) {
+        print(i);
+        if (n / i * i == n) {
+            ans = false;
+            break;
+        } else {
+            continue;
+        }
+        print("never happens of n", i);
+    }
+    print(ans);
+}
+
+print("please input a num:");
+n = read_int();
+print("n in out", n);
+print(is_prime(n));
