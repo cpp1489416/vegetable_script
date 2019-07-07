@@ -1,64 +1,30 @@
-#ifndef RANDOM_BIWZZT7U82ZFOUNWQFFX79HILCQLMLUD4KN9Y7OTUFH7M0YZSQXFLE0CIH
-#define RANDOM_BIWZZT7U82ZFOUNWQFFX79HILCQLMLUD4KN9Y7OTUFH7M0YZSQXFLE0CIH
+#ifndef RANDOM_KJSE4NBXLXEE2WEHE2EF2QMD6IPZRUI0AOX8HBPKFFADEISWICISDUYXFJIS
+#define RANDOM_KJSE4NBXLXEE2WEHE2EF2QMD6IPZRUI0AOX8HBPKFFADEISWICISDUYXFJIS
 
-#include "../../common/all.h"
-#include <string>
-#include <sstream>
+#include "./expression_result.h"
 
 namespace vegetable_script {
 
-namespace detail {
-
-union StatementResultValue {
-  StatementResultValue() {}
-  ~StatementResultValue() {}
-
-  bool bool_value;
-  int int_value;
-  double float_value;
-  std::string string_value;
-};
-
-}  // namespace detail
-
-class ScopeStack;
-
-struct StatementResult {
-  using Value = detail::StatementResultValue;
-
-  enum class ValueType {
-    kVoid,
-    kBool,
-    kInt,
-    kFloat,
-    kString,
-    kIdentifier,
-  };
-
-  struct Exception {
-    std::string status;
+struct StatementResult final {
+  enum class Type {
+    kNormal,
+    kContinue,
+    kBreak,
+    kReturn,
   };
 
   StatementResult();
-  explicit StatementResult(bool value);
-  explicit StatementResult(int value);
-  explicit StatementResult(double value);
-  explicit StatementResult(const std::string& value);
-  explicit StatementResult(const std::string& value, bool identifier_mark);
-  StatementResult(const StatementResult& rhs);
-  StatementResult& operator=(const StatementResult& rhs);
-  ~StatementResult();
+  explicit StatementResult(const ExpressionResult& expression_result);
+  explicit StatementResult(Type type);
+  explicit StatementResult(const ExpressionResult& expression_result, Type type);
+  StatementResult(const StatementResult& rhs) = default;
+  StatementResult& operator=(const StatementResult& rhs) = default;
 
-  bool ToBool(bool* result, Exception* exception);
-  bool ToInt(int* result, Exception* exception);
-  bool ToFloat(double* result, Exception* exception);
-  bool ToString(std::string* string, Exception* exception);
-  bool ToRightValue(ScopeStack* scope_stack, StatementResult* result);
-
-  ValueType value_type;  // read only
-  Value value;
+  Type type;
+  ExpressionResult expression_result;
 };
+
 
 }  // namespace vegetable_script
 
-#endif  // RANDOM_BIWZZT7U82ZFOUNWQFFX79HILCQLMLUD4KN9Y7OTUFH7M0YZSQXFLE0CIH
+#endif  // RANDOM_KJSE4NBXLXEE2WEHE2EF2QMD6IPZRUI0AOX8HBPKFFADEISWICISDUYXFJIS

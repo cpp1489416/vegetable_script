@@ -666,6 +666,11 @@ void Lexer::PushBackIdentifierOrKeyword(const std::string& string,
     { "for", Token::Type::kKeywordFor },
     { "func", Token::Type::kKeywordFunc },
     { "var", Token::Type::kKeywordVar },
+    { "true", Token::Type::kKeywordTrue },
+    { "false", Token::Type::kKeywordFalse },
+    { "continue", Token::Type::kKeywordContinue },
+    { "break", Token::Type::kKeywordBreak },
+    { "return", Token::Type::kKeywordReturn },
   };
   if (keywords.count(string) == 0) {
     tokens_.push_back(Token {string, Token::Type::kIdentifier, row, column});

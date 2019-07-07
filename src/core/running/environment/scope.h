@@ -15,8 +15,9 @@ class Scope {
 
   explicit Scope(Ptr parent_scope = nullptr);
 
-  void PutVariable(std::string name, StatementResult value);
-  StatementResult GetVariable(std::string name);
+  void PutVariable(std::string name, ExpressionResult value);
+  bool ChangeVariable(std::string name, ExpressionResult value);
+  ExpressionResult GetVariable(std::string name);
 
   void PutFunctionSymbol(FunctionSymbol::Ptr function_symbol);
   FunctionSymbol::Ptr GetFunctionSymbol(const std::string& name);
@@ -26,7 +27,7 @@ class Scope {
 
  private:
   Ptr parent_scope_;
-  std::map<std::string, StatementResult> variables_;
+  std::map<std::string, ExpressionResult> variables_;
   std::map<std::string, FunctionSymbol::Ptr> function_symbols_;
 };
 

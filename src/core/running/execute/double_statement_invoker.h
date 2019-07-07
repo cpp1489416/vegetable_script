@@ -14,6 +14,12 @@ class DoubleStatementInvoker : public IVisitor {
 
   void Visit(ExpressionStatement* node) override;
   void Visit(BlockStatement* node) override;
+  void Visit(IfStatement* node) override;
+  void Visit(WhileStatement* node) override;
+  void Visit(ForStatement* node) override;
+  void Visit(ContinueStatement* node) override;
+  void Visit(BreakStatement* node) override;
+  void Visit(ReturnStatement* node) override;
 
   bool success() { return success_; }
   DoubleException exception() { return exception_; }

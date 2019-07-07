@@ -69,6 +69,24 @@ struct ForStatement : public Statement {
   Statement::Ptr body_statement;
 };
 
+struct ContinueStatement : public Statement {
+  using Ptr = std::shared_ptr<ContinueStatement>;
+
+  void Accept(IVisitor* visitor) override { visitor->Visit(this); }
+};
+
+struct BreakStatement : public Statement {
+  using Ptr = std::shared_ptr<BreakStatement>;
+
+  void Accept(IVisitor* visitor) override { visitor->Visit(this); }
+};
+
+struct ReturnStatement : public Statement {
+  using Ptr = std::shared_ptr<ReturnStatement>;
+
+  void Accept(IVisitor* visitor) override { visitor->Visit(this); }
+};
+
 }  // namespace vegetable_script
 
 #endif  // VEGETABLE_SCRIPT_CORE_AST_STATEMENT_ASTS_H_

@@ -23,7 +23,7 @@ class PrintFunction : public NativeFunctionSymbol {
           break;
         }
         case Argument::ValueType::kBool: {
-          std::cout << "(bool)" << argument.value.bool_value;
+          std::cout << "(bool)" << (argument.value.bool_value ? "true" : "false");
           break;
         }
         case Argument::ValueType::kInt: {
@@ -45,11 +45,26 @@ class PrintFunction : public NativeFunctionSymbol {
       std::cout << " ";
     }
     std::cout << std::endl;
+    *result = ReturnResult(ReturnResult::Type::kReturn);
     return true;
   }
 
   std::string GetName() override {
     return "print";
+  }
+};
+
+class ReadIntegerFunction : public NativeFunctionSymbol {
+ public:
+  bool Invoke(ArgumentList* argument_list, ScopeStack* scope_stack, ReturnResult* result) override {
+    int ans;
+    std::cin >> ans;
+    *result = ReturnResult(ExpressionResult(ans), ReturnResult::Type::kReturn);
+    return true;
+  }
+
+  std::string GetName() override {
+    return "read_int";
   }
 };
 
@@ -68,11 +83,13 @@ class SinFunction : public NativeFunctionSymbol {
         return false;
       }
       case Argument::ValueType::kInt: {
-        *result = ReturnResult(std::sin(argument.value.int_value));
+        *result = ReturnResult(ExpressionResult(std::sin(argument.value.int_value)),
+            ReturnResult::Type::kReturn);
         break;
       }
       case Argument::ValueType::kFloat: {
-        *result = ReturnResult(std::sin(argument.value.float_value));
+        *result = ReturnResult(ExpressionResult(std::sin(argument.value.float_value)),
+            ReturnResult::Type::kReturn);
         break;
       }
       case Argument::ValueType::kString: {
@@ -94,28 +111,30 @@ class GetTypeFunction : public NativeFunctionSymbol {
       return false;
     }
     Argument argument = argument_list->front();
+    ExpressionResult expression_result;
     switch (argument.value_type) {
       case Argument::ValueType::kVoid: {
-        *result = ReturnResult("void");
+        expression_result = ExpressionResult("void");
         break;
       }
       case Argument::ValueType::kBool: {
-        *result = ReturnResult("bool");
+        expression_result = ExpressionResult("bool");
         break;
       }
       case Argument::ValueType::kInt: {
-        *result = ReturnResult("int");
+        expression_result = ExpressionResult("int");
         break;
       }
       case Argument::ValueType::kFloat: {
-        *result = ReturnResult("float");
+        expression_result = ExpressionResult("float");
         break;
       }
       case Argument::ValueType::kString: {
-        *result = ReturnResult("string");
+        expression_result = ExpressionResult("string");
         break;
       }
     }
+    *result = ReturnResult(expression_result, ReturnResult::Type::kReturn);
     return true;
   }
 
@@ -147,6 +166,7 @@ class CustomFunctionAstScopeStackFiller : public IVisitor {
 
 void NativeFunctionSymbol::FillScopeStack(ScopeStack* scope_stack) {
   scope_stack->scope()->PutFunctionSymbol(std::make_shared<PrintFunction>());
+  scope_stack->scope()->PutFunctionSymbol(std::make_shared<ReadIntegerFunction>());
   scope_stack->scope()->PutFunctionSymbol(std::make_shared<SinFunction>());
   scope_stack->scope()->PutFunctionSymbol(std::make_shared<GetTypeFunction>());
 }

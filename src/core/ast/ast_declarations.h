@@ -10,12 +10,12 @@ struct Ast;
 // expressions
 struct Expression;
 struct EmptyExpression;
-struct LHSExpression;
 struct IdentifierExpression;
-struct StringExpression;
+struct BooleanExpression;
 struct NumberExpression;
 struct IntegerExpression;
 struct FloatExpression;
+struct StringExpression;
 struct FunctionInvokeExpression;
 struct UnaryExpression;
 struct BinaryExpression;
@@ -28,18 +28,11 @@ struct BlockStatement;
 struct IfStatement;
 struct WhileStatement;
 struct ForStatement;
+struct ContinueStatement;
+struct BreakStatement;
+struct ReturnStatement;
 
 struct Program;
-
-// types
-struct TypeAst;
-struct IntegerTypeAst;
-struct RealTypeAst;
-
-// type references
-struct TypeReference;
-struct IntegerTypeReference;
-struct RealTypeReference;
 
 struct VariableDefinition;
 struct ParameterDefinition;
@@ -47,17 +40,12 @@ using Argument = ParameterDefinition;
 struct FunctionDefinition;
 using ParameterList = std::vector<Pointer<ParameterDefinition> >;
 
-struct Symbol;
-struct VariableSymbol;
-struct FunctionSymbol;
-struct ClassTypeSymbol;
-struct BuiltInTypeSymbol;
-
 struct IVisitor {
  public:
   virtual void Visit(Ast* node) {}
   virtual void Visit(IdentifierExpression* node) {}
   virtual void Visit(StringExpression* node) {}
+  virtual void Visit(BooleanExpression* node) {}
   virtual void Visit(NumberExpression* node) {}
   virtual void Visit(IntegerExpression* node) {}
   virtual void Visit(FloatExpression* node) {}
@@ -73,15 +61,12 @@ struct IVisitor {
   virtual void Visit(IfStatement* node) {}
   virtual void Visit(WhileStatement* node) {}
   virtual void Visit(ForStatement* node) {}
+  virtual void Visit(ContinueStatement* node) {}
+  virtual void Visit(BreakStatement* node) {}
+  virtual void Visit(ReturnStatement* node) {}
+
   virtual void Visit(VariableDefinition* node) {}
   virtual void Visit(FunctionDefinition* node) {}
-
-  virtual void Visit(Program* node) {}
-  virtual void Visit(VariableSymbol *node) {}
-  virtual void Visit(ClassTypeSymbol* node) {}
-  virtual void Visit(BuiltInTypeSymbol* node) {}
-  virtual void Visit(ParameterDefinition* node) {}
-  virtual void Visit(FunctionSymbol *node) {}
 };
 
 

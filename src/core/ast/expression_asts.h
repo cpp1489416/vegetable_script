@@ -41,6 +41,15 @@ struct EmptyExpression : public Expression {
   void Accept(IVisitor* visitor) override { visitor->Visit(this); }
 };
 
+struct BooleanExpression : public Expression {
+  using Ptr = std::shared_ptr<BooleanExpression>;
+  using WeakPtr = std::weak_ptr<BooleanExpression>;
+
+  void Accept(IVisitor* visitor) override { visitor->Visit(this); }
+
+  bool value;
+};
+
 struct NumberExpression : public Expression {
   using Ptr = std::shared_ptr<NumberExpression>;
   using WeakPtr = std::weak_ptr<NumberExpression>;

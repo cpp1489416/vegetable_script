@@ -15,6 +15,7 @@ set(src_list
     running/environment/functions.cpp
     running/environment/scope_stack.cpp
     running/environment/scope.cpp
+    running/environment/expression_result.cpp
     running/environment/statement_result.cpp
     running/execute/double_expression_invoker.cpp
     running/execute/double_statement_invoker.cpp

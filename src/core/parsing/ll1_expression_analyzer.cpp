@@ -318,6 +318,18 @@ bool Ll1ExpressionAnalyzer::ParseSingleExpression(
       *expression = ans_expression;
       return true;
     }
+  } else if (token.type == Token::Type::kKeywordTrue) {
+    lexer->MoveNext();
+    auto ans_expression = std::make_shared<BooleanExpression>();
+    ans_expression->value = true;
+    *expression = ans_expression;
+    return true;
+  } else if (token.type == Token::Type::kKeywordFalse) {
+    lexer->MoveNext();
+    auto ans_expression = std::make_shared<BooleanExpression>();
+    ans_expression->value = false;
+    *expression = ans_expression;
+    return true;
   } else {
     *exception = {
       "unknown token: \"" + token.string + "\"",

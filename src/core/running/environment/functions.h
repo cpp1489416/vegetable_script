@@ -2,6 +2,7 @@
 #define RANDOM_TMGZKFFHKPRRXHRVDIFYE5TLZIQXW3DKCVUXU9EXJFNKNNJPTM1SRZXEGKSTIBG
 
 #include <deque>
+#include "./expression_result.h"
 #include "./statement_result.h"
 #include "../../ast/all.h"
 #include <memory>
@@ -14,9 +15,9 @@ class ScopeStack;
 class FunctionSymbol {
  public:
   using Ptr = std::shared_ptr<FunctionSymbol>;
-  using Argument = StatementResult;
-  using ReturnResult = StatementResult;
+  using Argument = ExpressionResult;
   using ArgumentList = std::deque<Argument>;
+  using ReturnResult = StatementResult;
 
   virtual bool Invoke(ArgumentList* argument_list, ScopeStack* scope_stack, ReturnResult* result) = 0;
   virtual std::string GetName() = 0;

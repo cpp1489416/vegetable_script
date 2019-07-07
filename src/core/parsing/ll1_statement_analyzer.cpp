@@ -53,6 +53,20 @@ bool Ll1StatementAnalyzer::ParseStatement(
     }
     *statement = for_statement;
     return true;
+  } else if (token.type == Token::Type::kKeywordContinue) {
+    ContinueStatement::Ptr continue_statement;
+    if (!ParseContinueStatement(lexer, &continue_statement, exception)) {
+      return false;
+    }
+    *statement = continue_statement;
+    return true;
+  } else if (token.type == Token::Type::kKeywordBreak) {
+    BreakStatement::Ptr break_statement;
+    if (!ParseBreakStatement(lexer, &break_statement, exception)) {
+      return false;
+    }
+    *statement = break_statement;
+    return true;
   } else if (token.type == Token::Type::kKeywordFunc || token.type == Token::Type::kKeywordVar) {
     Definition::Ptr definition;
     if (!ParseDefinitionStatement(lexer, &definition, exception)) {
@@ -328,6 +342,22 @@ bool Ll1StatementAnalyzer::ParseForStatement(
     return false;
   }
   *statement = for_statement;
+  return true;
+}
+
+bool Ll1StatementAnalyzer::ParseContinueStatement(
+    Lexer* lexer,
+    ContinueStatement::Ptr* statement,
+    Ll1StatementAnalyzer::Exception* exception) {
+
+  return true;
+}
+
+bool Ll1StatementAnalyzer::ParseBreakStatement(
+    Lexer* lexer,
+    BreakStatement::Ptr* statement,
+    Ll1StatementAnalyzer::Exception* exception) {
+
   return true;
 }
 

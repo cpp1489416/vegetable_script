@@ -17,21 +17,17 @@ class Ll1StatementAnalyzer{
   using Exception = ParsingException;
 
   bool Parse(Lexer* lexer, Statement::Ptr* statement, Exception* exception);
-
   bool ParseStatement(Lexer* lexer, Statement::Ptr* statement, Exception* exception);
-
   bool ParseExpressionStatement(Lexer* lexer, ExpressionStatement::Ptr* statement, Exception* exception);
-
   bool ParseDefinitionStatement(Lexer* lexer, Definition::Ptr* definition, Exception* expression);
-
   bool ParseBlockStatement(Lexer* lexer, BlockStatement::Ptr* statement, Exception* exception);
-
   bool ParseIfStatement(Lexer* lexer, IfStatement::Ptr* statement, Exception* exception);
-
   bool ParseWhileStatement(Lexer* lexer, WhileStatement::Ptr* statement, Exception* exception);
-
   bool ParseForStatement(Lexer* lexer, ForStatement::Ptr* statement, Exception* exception);
+  bool ParseContinueStatement(Lexer* lexer, ContinueStatement::Ptr* statement, Exception* exception);
+  bool ParseBreakStatement(Lexer* lexer, BreakStatement::Ptr* statement, Exception* exception);
 
+ private:
   Ll1ExpressionAnalyzer expression_analyzer_;
 };
 
