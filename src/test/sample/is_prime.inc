@@ -17,5 +17,5 @@ func is_prime(n) {
 
 while (true) {
     c = read_int();
-    print(is_prime(c));
+    print(sin(c));
 }

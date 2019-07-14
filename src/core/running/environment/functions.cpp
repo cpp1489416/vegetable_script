@@ -75,6 +75,7 @@ class SinFunction : public NativeFunctionSymbol {
       return false;
     }
     Argument argument = argument_list->front();
+    argument.ToRightValue(scope_stack, &argument);
     switch (argument.value_type) {
       case Argument::ValueType::kVoid: {
         return false;
