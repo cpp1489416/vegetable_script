@@ -28,7 +28,7 @@ void DoubleStatementInvoker::Visit(BlockStatement* node) {
       success_ = false;
       return;
     }
-    if (result_.type != StatementResult::Type::kNormal) {
+    if (result_.type == StatementResult::Type::kReturn) {
       break;
     }
   }
@@ -79,12 +79,16 @@ void DoubleStatementInvoker::Visit(ForStatement* node) {
       break;
     }
     node->body_statement->Accept(this);
-    if (result_.type == StatementResult::Type::kBreak) {
+    if (result_.type == StatementResult::Type::kBreak ||
+        result_.type == StatementResult::Type::kReturn) {
       break;
     }
     node->after_expression->Accept(&expression_invoker);
   }
-
+  if (result_.type == StatementResult::Type::kBreak ||
+      result_.type == StatementResult::Type::kContinue) {
+    result_ = StatementResult();
+  }
   scope_stack_->PopScope();
 }
 
@@ -97,7 +101,13 @@ void DoubleStatementInvoker::Visit(BreakStatement* node) {
 }
 
 void DoubleStatementInvoker::Visit(ReturnStatement* node) {
-  result_ = StatementResult(StatementResult::Type::kReturn);
+  if (!node->expression) {
+    result_ = StatementResult(StatementResult::Type::kReturn);
+  } else {
+    DoubleExpressionInvoker expression_invoker(scope_stack_);
+    node->expression->Accept(&expression_invoker);
+    result_ = StatementResult(expression_invoker.result(), StatementResult::Type::kReturn);
+  }
 }
 
 }  // namespace vegetable_script

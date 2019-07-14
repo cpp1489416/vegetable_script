@@ -65,7 +65,7 @@ XC_TEST_CASE(double_invoker, true) {
   using namespace vegetable_script;  // NOLINT
   std::string file_directory = xc::FileUtil::GetDirectory(__FILE__) + "sample/";
   std::cout << file_directory << std::endl;
-  std::string path = file_directory + "expression.inc";
+  std::string path = file_directory + "is_prime.inc";
   EpochStatementFile(path);
   /*
   if (result->error != nullptr) {

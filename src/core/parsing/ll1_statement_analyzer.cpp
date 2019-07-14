@@ -430,13 +430,24 @@ bool Ll1StatementAnalyzer::ParseReturnStatement(
   if (!lexer->LookCurrent(&token, exception)) {
     return false;
   }
-  lexer->MoveNext();
   if (token.type == Token::Type::kSemicolon) {
+    lexer->MoveNext();
     return true;
   } else {
     if (!expression_analyzer_.Parse(lexer, &return_statement->expression, exception)) {
       return false;
     }
+    if (!lexer->LookCurrentWithoutComments(&token, exception)) {
+      return false;
+    }
+    if (token.type != Token::Type::kSemicolon) {
+      *exception = {
+        "missing \";\"", token.row, token.column
+      };
+      return false;
+    }
+    lexer->MoveNext();
+    return true;
   }
 }
 
