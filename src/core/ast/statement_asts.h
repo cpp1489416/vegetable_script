@@ -85,6 +85,8 @@ struct ReturnStatement : public Statement {
   using Ptr = std::shared_ptr<ReturnStatement>;
 
   void Accept(IVisitor* visitor) override { visitor->Visit(this); }
+
+  Expression::Ptr expression;
 };
 
 }  // namespace vegetable_script

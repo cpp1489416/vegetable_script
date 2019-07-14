@@ -67,6 +67,13 @@ bool Ll1StatementAnalyzer::ParseStatement(
     }
     *statement = break_statement;
     return true;
+  } else if (token.type == Token::Type::kKeywordReturn) {
+    ReturnStatement::Ptr return_statement;
+    if (!ParseReturnStatement(lexer, &return_statement, exception)) {
+      return false;
+    }
+    *statement = return_statement;
+    return true;
   } else if (token.type == Token::Type::kKeywordFunc || token.type == Token::Type::kKeywordVar) {
     Definition::Ptr definition;
     if (!ParseDefinitionStatement(lexer, &definition, exception)) {
@@ -401,6 +408,36 @@ bool Ll1StatementAnalyzer::ParseBreakStatement(
   lexer->MoveNext();
   *statement = std::make_shared<BreakStatement>();
   return true;
+}
+
+bool Ll1StatementAnalyzer::ParseReturnStatement(
+    Lexer* lexer,
+    ReturnStatement::Ptr* statement,
+    Ll1StatementAnalyzer::Exception* exception) {
+  Token token;
+  auto return_statement = std::make_shared<ReturnStatement>();
+  *statement = return_statement;
+  if (!lexer->LookCurrent(&token, exception)) {
+    return false;
+  }
+  if (token.type != Token::Type::kKeywordReturn) {
+    *exception = {
+      "missing \"return\"", token.row, token.column
+    };
+    return false;
+  }
+  lexer->MoveNext();
+  if (!lexer->LookCurrent(&token, exception)) {
+    return false;
+  }
+  lexer->MoveNext();
+  if (token.type == Token::Type::kSemicolon) {
+    return true;
+  } else {
+    if (!expression_analyzer_.Parse(lexer, &return_statement->expression, exception)) {
+      return false;
+    }
+  }
 }
 
 }  // namespace vegetable_script

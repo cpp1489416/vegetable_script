@@ -59,6 +59,8 @@ for (j = 0; j <= 1; j = j + 1) {
 
 */
 
+return "d";
+
 func is_prime(n) {
     print("n in function: ", n);
     ans = true;

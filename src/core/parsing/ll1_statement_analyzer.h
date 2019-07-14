@@ -26,6 +26,7 @@ class Ll1StatementAnalyzer{
   bool ParseForStatement(Lexer* lexer, ForStatement::Ptr* statement, Exception* exception);
   bool ParseContinueStatement(Lexer* lexer, ContinueStatement::Ptr* statement, Exception* exception);
   bool ParseBreakStatement(Lexer* lexer, BreakStatement::Ptr* statement, Exception* exception);
+  bool ParseReturnStatement(Lexer* lexer, ReturnStatement::Ptr* statement, Exception* exception);
 
  private:
   Ll1ExpressionAnalyzer expression_analyzer_;
